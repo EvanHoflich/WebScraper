@@ -51,6 +51,23 @@ def reset():
     newer_list.clear()
     size_list.clear()
 
+def openBoxes():
+    for x in range(len(size_list)):
+        finalString = "listing[" + str(x + 1) + "]"
+        temp_list_integer.append(finalString)
+
+    for element in temp_list_integer:
+        temp_list_string.append(str(element))
+
+    for p in range(len(size_list)):
+        string = "/html/body/app-root/div/div[1]/div/div/app-csgo-market/div[2]/app-p2p2-trading-market/div/app-p2p-trading-listing-container/div/app-p2p-trading-listing[1]/div/div[2]/button"
+        new_string = string.replace("listing[1]", temp_list_string[p])
+        xpath_list.append(new_string)
+
+    for i in range(len(size_list)):
+        button = driver.find_element(By.XPATH, xpath_list[i])
+        button.click()
+
 def main():
     html = driver.page_source
     soup = bs4.BeautifulSoup(html, "html.parser")
@@ -120,21 +137,7 @@ def main():
         print(Style.RESET_ALL)
     newer_list.clear()
 
-    for x in range(len(size_list)):
-        finalString = "listing[" + str(x + 1) + "]"
-        temp_list_integer.append(finalString)
-
-    for element in temp_list_integer:
-        temp_list_string.append(str(element))
-
-    for p in range(len(size_list)):
-        string = "/html/body/app-root/div/div[1]/div/div/app-csgo-market/div[2]/app-p2p2-trading-market/div/app-p2p-trading-listing-container/div/app-p2p-trading-listing[1]/div/div[2]/button"
-        new_string = string.replace("listing[1]", temp_list_string[p])
-        xpath_list.append(new_string)
-
-    for i in range(len(size_list)):
-        button = driver.find_element(By.XPATH, xpath_list[i])
-        button.click()
+    openBoxes()
 
     if len(item_discount_price) != 0: #THIS LINE CAUSING ISSUES
         global empty
