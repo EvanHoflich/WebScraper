@@ -2,6 +2,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from fake_useragent import UserAgent
 import bs4
@@ -36,6 +37,9 @@ discount_price = []
 new_list = []
 newer_list = []
 size_list = []
+xpath_list = []
+temp_list_integer = []
+temp_list_string = []
 #--------------------------------------
 
 count = 0
@@ -72,13 +76,14 @@ def main():
             newResult = result[result.find('\n') + 11: 20]
         newer_list.append(newResult)
 
+    print(newer_list)
+
     for g in range(len(newer_list)):
         size_list.append(newer_list[g])
 
 
     print('Number of single items:', len(store_name))
     print('Number of bundles:     ', len(size_list) - len(store_name))
-    print('***********************************************')
 
     def skinCheck(name):
         item = sm.get_csgo_item(name, currency='USD')
@@ -103,6 +108,7 @@ def main():
         if len(store_name) != len(newer_list):
             bundles = True
             print('BUNDLE DETECTED, CODE ABORTED')
+            print('***********************************************\n')
             break
         else:
             if (float(newer_list[e]) * goodMultiplier) > prices[e]:
@@ -114,6 +120,22 @@ def main():
         print(Style.RESET_ALL)
     newer_list.clear()
 
+    for x in range(len(size_list)):
+        finalString = "listing[" + str(x + 1) + "]"
+        temp_list_integer.append(finalString)
+
+    for element in temp_list_integer:
+        temp_list_string.append(str(element))
+
+    for p in range(len(size_list)):
+        string = "/html/body/app-root/div/div[1]/div/div/app-csgo-market/div[2]/app-p2p2-trading-market/div/app-p2p-trading-listing-container/div/app-p2p-trading-listing[1]/div/div[2]/button"
+        new_string = string.replace("listing[1]", temp_list_string[p])
+        xpath_list.append(new_string)
+
+    for i in range(len(size_list)):
+        button = driver.find_element(By.XPATH, xpath_list[i])
+        button.click()
+
     if len(item_discount_price) != 0: #THIS LINE CAUSING ISSUES
         global empty
         empty = False
@@ -122,17 +144,17 @@ def main():
         empty = True
         return empty
 
-
+print('****************CODE BEGINS*******************')
 driver.get("https://www.wtfskins.com/withdraw")
 time.sleep(0.5)
 main()
 reset()
 
 while True:
-    time.sleep(2)  # sleep for 2 seconds
+    time.sleep(5)  # sleep for 2 seconds
     count = count + 1
     Windows = driver.window_handles
-    print('***********************************************\n')
+    print('***********************************************')
     print('Refreshing, Refresh #', count)
     for window in Windows:
         driver.switch_to.window(window)
