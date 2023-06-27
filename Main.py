@@ -129,7 +129,7 @@ main()
 reset()
 
 while True:
-    time.sleep(5)  # sleep for 2 seconds
+    time.sleep(2)  # sleep for 2 seconds
     count = count + 1
     Windows = driver.window_handles
     print('***********************************************\n')
