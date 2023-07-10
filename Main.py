@@ -10,21 +10,41 @@ import steammarket as sm
 from decimal import *
 from colorama import Fore, Back, Style
 from forex_python.converter import CurrencyRates
+import os
 
 c = CurrencyRates()
 
 #-----------Variables-----------
 exchangeRate = 1.62
 correctionFactor = 1
-goodMultiplier = 2.35
+goodMultiplier = 2.8
 empty = True
 bundles = False
+bundleMismatch = False
+itemSound = False
 store_not_empty = 0
 #--------------------------------
 
 options = Options()
+
+#------------Dont Open A Browser (Mac)----------------
+options.add_argument("--headless") # Runs Chrome in headless mode.
+options.add_argument('--no-sandbox') # # Bypass OS security model
+options.add_argument('start-maximized')
+options.add_argument('disable-infobars')
+options.add_argument("--disable-extensions")
 options.add_experimental_option("detach", True)
+
+#----------Dont Open A Browser (Windows)--------------
+#options.add_argument("--headless") # Runs Chrome in headless mode.
+#options.add_argument('--no-sandbox') # Bypass OS security model
+#options.add_argument('--disable-gpu')  # applicable to windows os only
+#options.add_argument('start-maximized') #
+#options.add_argument('disable-infobars')
+#options.add_argument("--disable-extensions")
+
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+driver.set_window_position(970,0)
 ua = UserAgent()
 opts = Options()
 opts.add_argument("user-agent="+ua.random)
@@ -40,16 +60,36 @@ size_list = []
 xpath_list = []
 temp_list_integer = []
 temp_list_string = []
+bundle_list = []
+evans_list = []
+second_list = []
+statement = []
 #--------------------------------------
 
 count = 0
+count2 = 0
 
 def reset():
+    list.clear()
+    prices.clear()
     store_name.clear()
     discount_price.clear()
     new_list.clear()
     newer_list.clear()
     size_list.clear()
+    xpath_list.clear()
+    temp_list_integer.clear()
+    temp_list_string.clear()
+    bundle_list.clear()
+    evans_list.clear()
+    second_list.clear()
+    statement.clear()
+
+def steamMarketWorking():
+    item = sm.get_csgo_item('AK-47 | Frontside Misty (Field-Tested)', currency='USD')
+    if len(item) == 0:
+        print("Steam Market Library Currently Down")
+        exit()
 
 def openBoxes():
     for x in range(len(size_list)):
@@ -68,12 +108,65 @@ def openBoxes():
         button = driver.find_element(By.XPATH, xpath_list[i])
         button.click()
 
+def bundleFinder():
+    for x in range(len(bundleSoup)):
+        stringCheck = str(bundleSoup[x])
+        stringCheck2 = stringCheck.find("item")
+        bundle_list.append(stringCheck[stringCheck2 : 40])
+
+    for i in range(len(bundle_list)):
+        if bundle_list[i] != 'item small':
+            bundle_list[i] = 'item large'
+
+    c = 0  # counter variable
+    bundle = False
+    lastBundle = False
+    global bundleCount
+    bundleCount = []  # empty list
+    for x in bundle_list:
+        if x == 'item small':
+            lastBundle = False
+            c += 1
+            bundle = True
+        elif (bundle == False and x == 'item large') or (lastBundle == True and x == 'item large'):
+            c = 0
+            bundleCount.append(c)  # appending the current value of c which contains total number of small items
+        elif x == 'item large':
+            bundleCount.append(c)  # appending the current value of c which contains total number of small items
+            c = 0
+            bundleCount.append(c)
+            lastBundle = True
+    if len(bundle_list)!=0:
+        if bundle_list[-1] == 'item small':  # to check if there are any small item left
+            bundleCount.append(c)
+
+    m = 0
+    for i in range(len(bundleCount)): #Count number of bundles
+        if bundleCount[i] > 0:
+            m = m+1
+
+    num_bundles = len(size_list) - len(store_name)
+
+    if num_bundles != m:
+        for i in range(num_bundles-m):
+            bundleMismatch = True
+            print('Bundle Mismatch Detected')
+            indexOfMax = bundleCount.index(max(bundleCount))
+            bundleCount.insert(indexOfMax + 1, 2)
+
+    for y in range(len(bundleCount)):
+        if bundleCount[y] == 0:
+            bundleCount[y] = 'Single'
+        else:
+            bundleCount[y] = 'Bundle'
+
 def main():
     html = driver.page_source
     soup = bs4.BeautifulSoup(html, "html.parser")
-
-    item_store_name = soup.find_all("div",{"class":"item-name"})
-    item_discount_price = soup.find_all("div",{"class":"listing-footer text-center"})
+    global bundleSoup
+    bundleSoup = soup.find_all("div",{"class":"item"})
+    item_discount_price = soup.find_all("div", {"class": "listing-footer text-center"})
+    item_store_name = soup.find_all("div", {"class": "item-name"})
 
     for name in item_store_name:
         store_name.append(name.text)
@@ -93,22 +186,26 @@ def main():
             newResult = result[result.find('\n') + 11: 20]
         newer_list.append(newResult)
 
-    print(newer_list)
-
     for g in range(len(newer_list)):
         size_list.append(newer_list[g])
 
-
-    print('Number of single items:', len(store_name))
-    print('Number of bundles:     ', len(size_list) - len(store_name))
+    if len(store_name) > 0 and len(newer_list) > 0:
+        #print('                                            Number of single items:', len(store_name))
+        #print('                                            Number of bundles:     ', len(size_list) - len(store_name))
+        global itemSound
+        if itemSound == True:
+            #os.system('say "Item Found"')
+            itemSound = False
+    else:
+        print('                                        Store empty, Refreshing Momentarily....')
+        itemSound = True
 
     def skinCheck(name):
         item = sm.get_csgo_item(name, currency='USD')
         item_price = item.values()
         for key in item.keys():
             if item[key] == False:
-                ErrorMessage = "Item Not Found"
-                print(ErrorMessage)
+                print("Item Not Found")
                 return
             list.append(item[key])
         USDPrice = list[1][1:]
@@ -116,28 +213,36 @@ def main():
         NZDPrice = Decimal(USDPrice) * Decimal(exchangeRate) * Decimal(correctionFactor)
         prices.append(NZDPrice) #To Calculate total
         list.clear()
-
+    newerer_list = newer_list
     for i in range(len(store_name)):
         skinCheck(store_name[i])
-
+    bundleFinder()
     #Print Full List
     for e in range(len(item_discount_price)):
         if len(store_name) != len(newer_list):
-            bundles = True
-            print('BUNDLE DETECTED, CODE ABORTED')
-            print('***********************************************\n')
-            break
+            for i in range(len(bundleCount)):
+                if bundleCount[i] == 'Bundle':
+                    store_name.insert(i, bundleCount[i] + '                              ')
+                    prices.insert(i, 0.0000)
+
+    for e in range(len(store_name)):
+        if store_name[e] == 'Bundle                              ':
+            statement.append(Fore.YELLOW + 'Bundle')
+        elif (float(newer_list[e]) * goodMultiplier) > prices[e]:
+            statement.append(Fore.RED + 'BAD DEAL')
         else:
-            if (float(newer_list[e]) * goodMultiplier) > prices[e]:
-                statement = Fore.RED + 'BAD DEAL'
-            else:
-                statement = Fore.GREEN +'GOOD DEAL'
-            print(Style.RESET_ALL)
-            print(('Item: ' + str(store_name[e]) + '\t' + 'Price: $' + newer_list[e]).expandtabs(25), '           Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement)
+            statement.append(Fore.GREEN +'GOOD DEAL')
         print(Style.RESET_ALL)
+        if prices[e] == 0.0000:
+            prices[e] = '     No Suggested Price                '
+            print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27),prices[e], statement[e])
+        else:
+            print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e])
+    print(Style.RESET_ALL)
+    #print(statement)
     newer_list.clear()
 
-    openBoxes()
+    # openBoxes()
 
     if len(item_discount_price) != 0: #THIS LINE CAUSING ISSUES
         global empty
@@ -147,21 +252,26 @@ def main():
         empty = True
         return empty
 
-print('****************CODE BEGINS*******************')
+print('                                        ***********Code Starting*********')
+steamMarketWorking()
 driver.get("https://www.wtfskins.com/withdraw")
 time.sleep(0.5)
+#driver.minimize_window()
 main()
+openBoxes()
 reset()
 
 while True:
-    time.sleep(5)  # sleep for 2 seconds
+    time.sleep(2.5)  # sleep for 5 seconds
     count = count + 1
     Windows = driver.window_handles
-    print('***********************************************')
-    print('Refreshing, Refresh #', count)
+    print('+---------------------------------------+----------------------------------+---------------------------------------+')
+    print('|                                       |     Refreshing, Refresh #', count,'     |                                       |')
+    print('+---------------------------------------+----------------------------------+---------------------------------------+')
     for window in Windows:
         driver.switch_to.window(window)
         driver.refresh()
         time.sleep(0.5)
         main()
+        openBoxes()
         reset()
