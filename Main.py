@@ -11,6 +11,7 @@ from decimal import *
 from colorama import Fore, Back, Style
 from forex_python.converter import CurrencyRates
 import os
+import pyshorteners
 
 c = CurrencyRates()
 
@@ -28,8 +29,8 @@ store_not_empty = 0
 options = Options()
 
 #------------Dont Open A Browser (Mac)----------------
-options.add_argument("--headless") # Runs Chrome in headless mode.
-options.add_argument('--no-sandbox') # # Bypass OS security model
+options.add_argument("--headless")  # Runs Chrome in headless mode.
+options.add_argument('--no-sandbox')  # Bypass OS security model
 options.add_argument('start-maximized')
 options.add_argument('disable-infobars')
 options.add_argument("--disable-extensions")
@@ -64,6 +65,9 @@ bundle_list = []
 evans_list = []
 second_list = []
 statement = []
+gunNameList = []
+skinNameList = []
+skinWearList = []
 #--------------------------------------
 
 count = 0
@@ -88,8 +92,91 @@ def reset():
 def steamMarketWorking():
     item = sm.get_csgo_item('AK-47 | Frontside Misty (Field-Tested)', currency='USD')
     if len(item) == 0:
-        print("Steam Market Library Currently Down")
+        print(Fore.RED + "                                                            -----Steam Market Library Currently Down-----")
         exit()
+    else:
+        print(Fore.GREEN + "                                                            -----Steam Market Working As Expected-----")
+
+def findLink(name):
+
+    gunNameList.clear()
+    skinNameList.clear()
+    skinWearList.clear()
+
+    if name == 'Bundle':
+        name = 'MAC-10 | Monkeyflage (Well-Worn)'
+
+    vanilla = False
+    IndexGunName = 0
+    x = name.split()
+
+    for i in range(len(x)):
+        if x[i] == '|':
+            IndexGunName = i
+
+    if IndexGunName != 0:
+        for i in range(IndexGunName):  # Find Gun Name
+            gunNameList.append(x[i])
+
+    for j in range(len(x)):  # Find where skin wear index is
+        if "(" in x[j]:
+            skinWearIndex = j
+            break
+        else:
+            skinWearIndex = 0
+
+    for i in range(skinWearIndex, len(x)):  # Adds skin wear to list
+        skinWearList.append(x[i])
+
+    for i in range(IndexGunName + 1, skinWearIndex):  # Adds gun name to list
+        skinNameList.append(x[i])
+
+    for i in range(len(x)):
+        if x[i] == '★':
+            print(x)
+            print('FOUND VANILLA')
+            skinWearList.remove(x[i])
+            vanilla = True
+
+    for i in range(len(gunNameList) - 1):
+        i = i + 1
+        gunNameList.insert(i, '%20')
+
+    for l in range(len(skinNameList) - 1):
+        l = l + 1
+        skinNameList.insert(l, '%20')
+
+    for i in range(len(skinWearList) - 1):
+        i = i + 1
+        skinWearList.insert(i, '%20')
+
+    gunName = ''.join(gunNameList)
+    skinName = ''.join(skinNameList)
+    skinWear = ''.join(skinWearList)
+
+    # print('Gun Name: ', gunName)
+    # print('Skin Name: ', skinName)
+    # print('Skin Wear: ', skinWear)
+
+    if 'Minimal' in skinWearList[0]:
+        # print('Mw')
+        a = 'https://steamcommunity.com/market/listings/730/' + gunName + '%20%7C%20' + skinName + '%20(Minimal%20Wear)'
+    elif 'Factory' in skinWearList[0]:
+        # print('Fn')
+        a = 'https://steamcommunity.com/market/listings/730/' + gunName + '%20%7C%20' + skinName + '%20%28Factory%20New%29'
+    elif vanilla == True:
+        a = 'https://steamcommunity.com/market/listings/730/%E2%98%85%20' + skinWear
+        # print(a)
+    else:
+        # print('Not Fn or Mw')
+        # print(type(skinWear))
+        skinWear = skinWear.replace('(', '')
+        skinWear = skinWear.replace(')', '')
+        a = 'https://steamcommunity.com/market/listings/730/' + gunName + '%20%7C%20' + skinName + '%20%28' + skinWear + '%29'
+
+    shortener = pyshorteners.Shortener()
+    global new_link
+    new_link = shortener.tinyurl.short(a)
 
 def openBoxes():
     for x in range(len(size_list)):
@@ -150,7 +237,6 @@ def bundleFinder():
     if num_bundles != m:
         for i in range(num_bundles-m):
             bundleMismatch = True
-            print('Bundle Mismatch Detected')
             indexOfMax = bundleCount.index(max(bundleCount))
             bundleCount.insert(indexOfMax + 1, 2)
 
@@ -185,19 +271,18 @@ def main():
         else:  # Filtering listing without discount
             newResult = result[result.find('\n') + 11: 20]
         newer_list.append(newResult)
-
     for g in range(len(newer_list)):
         size_list.append(newer_list[g])
 
-    if len(store_name) > 0 and len(newer_list) > 0:
+    if len(store_name) > 0 or len(newer_list) > 0:
         #print('                                            Number of single items:', len(store_name))
         #print('                                            Number of bundles:     ', len(size_list) - len(store_name))
         global itemSound
         if itemSound == True:
-            #os.system('say "Item Found"')
+            os.system('say "Item Found"')
             itemSound = False
     else:
-        print('                                        Store empty, Refreshing Momentarily....')
+        print('                                                       Store empty, Refreshing Momentarily....')
         itemSound = True
 
     def skinCheck(name):
@@ -226,25 +311,25 @@ def main():
                     prices.insert(i, 0.0000)
 
     for e in range(len(store_name)):
+        findLink(store_name[e])
+        # print(new_link)
         if store_name[e] == 'Bundle                              ':
             statement.append(Fore.YELLOW + 'Bundle')
         elif (float(newer_list[e]) * goodMultiplier) > prices[e]:
             statement.append(Fore.RED + 'BAD DEAL')
         else:
             statement.append(Fore.GREEN +'GOOD DEAL')
+            os.system('say "Good Deal Spotted"')
         print(Style.RESET_ALL)
         if prices[e] == 0.0000:
-            prices[e] = '     No Suggested Price                '
+            prices[e] = '      No Suggested Price                '
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27),prices[e], statement[e])
         else:
-            print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e])
+            print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ' ,new_link)
     print(Style.RESET_ALL)
-    #print(statement)
     newer_list.clear()
 
-    # openBoxes()
-
-    if len(item_discount_price) != 0: #THIS LINE CAUSING ISSUES
+    if len(item_discount_price) != 0:
         global empty
         empty = False
         return empty
@@ -252,7 +337,7 @@ def main():
         empty = True
         return empty
 
-print('                                        ***********Code Starting*********')
+print('                                                  **********************Code Starting*********************')
 steamMarketWorking()
 driver.get("https://www.wtfskins.com/withdraw")
 time.sleep(0.5)
@@ -262,12 +347,12 @@ openBoxes()
 reset()
 
 while True:
-    time.sleep(2.5)  # sleep for 5 seconds
+    time.sleep(1)  # sleep for 5 seconds
     count = count + 1
     Windows = driver.window_handles
-    print('+---------------------------------------+----------------------------------+---------------------------------------+')
-    print('|                                       |     Refreshing, Refresh #', count,'     |                                       |')
-    print('+---------------------------------------+----------------------------------+---------------------------------------+')
+    print('+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
+    print('|                                                                 |     Refreshing, Refresh #', count,'     |                                                                  |')
+    print('+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
     for window in Windows:
         driver.switch_to.window(window)
         driver.refresh()
@@ -275,3 +360,5 @@ while True:
         main()
         openBoxes()
         reset()
+        if count % 100 == 0:  #Every 100 check to ensure steam market is working
+            steamMarketWorking()
