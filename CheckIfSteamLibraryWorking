@@ -1,0 +1,29 @@
+import steammarket as sm
+from decimal import *
+list = []
+import time
+exchangeRate = 1.6381885
+correctionFactor = 1
+prices = []#To Calculate total
+
+def skinCheck(name):
+    item = sm.get_csgo_item(name, currency='USD')
+    item_price = item.values()
+    for key in item.keys():
+        if item[key] == False:
+            ErrorMessage = "Item Not Found"
+            print(ErrorMessage)
+            return
+        list.append(item[key])
+    USDPrice = list[1][1:]
+    USDPrice = USDPrice.replace(",", "")
+    NZDPrice = Decimal(USDPrice) * Decimal(exchangeRate) * Decimal(correctionFactor)
+    prices.append(NZDPrice)  # To Calculate total
+    print(name," --->  $", "{:.2f}".format(NZDPrice), "NZD")
+    list.clear()
+    #prices.append(NZDPrice) #To Calculate total
+
+
+skinsList = ['StatTrak™ AK-47 | Vulcan (Minimal Wear)', 'AK-47 | Ice Coaled (Minimal Wear)', 'Five-SeveN | Case Hardened (Well-Worn)']
+for i in range(len(skinsList)):
+    skinCheck(skinsList[i])
