@@ -246,9 +246,10 @@ def bundleFinder():
 
 
 def skinCheck(name):
+    print('                                                                   ----- New Skins, Rechecking -----')
     item = sm.get_csgo_item(name, currency='USD')
     if item is None:
-        print("Skin Library is down, Try again later :(")
+        print(                                                         "Skin Library is down, Try again later :(")
         for g in range(5):
             print(5-g)
             time.sleep(1)
@@ -267,15 +268,15 @@ def skinCheck(name):
 
 def printsStatement():
     for e in range(len(store_name)):
-        print('Newer List = ', newer_list[e])
-        print('prices = ', prices[e])
         findLink(store_name[e])
+        multiplier = float(prices[e])/float(newer_list[e])
+        multiplier = str(round(multiplier, 2))
         if store_name[e] == 'Bundle                              ':
             statement.append(Fore.YELLOW + 'Bundle')
         elif (float(newer_list[e]) * goodMultiplier) > prices[e]:
-            statement.append(Fore.RED + 'BAD DEAL')
+            statement.append(Fore.RED + 'BAD DEAL - ' + multiplier + 'x')
         else:
-            statement.append(Fore.GREEN +'GOOD DEAL - ' + newer_list[e] * goodMultiplier, 'x')
+            statement.append(Fore.GREEN +'GOOD DEAL - ' + multiplier + 'x')
             os.system('say "Good Deal Spotted"')
         print(Style.RESET_ALL)
         if prices[e] == 0.0000:
@@ -322,7 +323,6 @@ def main():
     checkList.append(Sum)
     if len(checkList) > 2:
         checkList.pop(0)
-    print('CheckList = ', checkList)
 
     if len(store_name) > 0 or len(newer_list) > 0:
         #print('                                            Number of single items:', len(store_name))
@@ -336,6 +336,7 @@ def main():
         itemSound = True
 
     if checkList[0] != checkList[1]:
+        prices.clear()
         for i in range(len(store_name)):
             skinCheck(store_name[i])
         bundleFinder()
@@ -365,7 +366,7 @@ def main():
         empty = True
         return empty
 
-print('                                                     ************************Code Starting*********************')
+print('                                           ******************* Code Starting - Code By Evan Holfich *******************')
 steamMarketWorking()
 driver.get("https://www.wtfskins.com/withdraw")
 time.sleep(0.5)
@@ -380,7 +381,7 @@ def loop():
         time.sleep(0.5)
         main()
         openBoxes()
-        if count % 4 == 0:  #Every 100 check to ensure steam market is working
+        if count % 20 == 0:  #Every 100 check to ensure steam market is working
             steamMarketWorking()
 
 while True:
