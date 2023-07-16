@@ -19,12 +19,11 @@ mac = 1
 Sum = 0
 exchangeRate = 1.569893
 correctionFactor = 1
-goodMultiplier = 2.8
+goodMultiplier = 2.82
 empty = True
 bundles = False
 bundleMismatch = False
 itemSound = False
-goodDeal = False
 store_not_empty = 0
 #--------------------------------
 
@@ -191,6 +190,8 @@ def openBoxes():
         xpath_list.append(new_string)
 
     for i in range(len(size_list)):
+        driver.refresh()
+        driver.implicitly_wait(0.1)
         button = driver.find_element(By.XPATH, xpath_list[i])
         button.click()
 
@@ -278,9 +279,8 @@ def printsStatement():
             statement.append(Fore.RED + 'BAD DEAL - ' + multiplier + 'x')
         else:
             statement.append(Fore.GREEN +'GOOD DEAL - ' + multiplier + 'x')
-            if mac == 1 and goodDeal == False:
+            if mac == 1:
                 os.system('say "Good Deal Spotted"')
-                goodDeal = True
         print(Style.RESET_ALL)
         if prices[e] == 0.0000 or prices[e] == '      No Suggested Price                ':
             prices[e] = '      No Suggested Price                '
@@ -351,7 +351,7 @@ def main():
     if checkList[0] != checkList[1]:
         prices.clear()
         if count != 0:
-            print('                                                                   ----- New Skins, Rechecking -----')
+            print('                                                               ----- Different Skins, Rechecking -----')
         for i in range(len(store_name)):
             skinCheck(store_name[i])
         bundleFinder()
@@ -398,7 +398,7 @@ def loop():
         openBoxes()
 
 while True:
-    time.sleep(3)  # sleep for 3 seconds
+    time.sleep(0.5)  # sleep for 0.5 seconds
     count = count + 1
     Windows = driver.window_handles
     size_list.clear()
