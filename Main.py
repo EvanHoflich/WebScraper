@@ -13,11 +13,11 @@ from forex_python.converter import CurrencyRates
 import os
 import pyshorteners
 
-c = CurrencyRates()
+mac = 1
 
 #-----------Variables-----------
 Sum = 0
-exchangeRate = 1.62
+exchangeRate = 1.5703395
 correctionFactor = 1
 goodMultiplier = 2.8
 empty = True
@@ -29,21 +29,22 @@ store_not_empty = 0
 
 options = Options()
 
-#------------Dont Open A Browser (Mac)----------------
-options.add_argument("--headless")  # Runs Chrome in headless mode.
-options.add_argument('--no-sandbox')  # Bypass OS security model
-options.add_argument('start-maximized')
-options.add_argument('disable-infobars')
-options.add_argument("--disable-extensions")
-options.add_experimental_option("detach", True)
-
-#----------Dont Open A Browser (Windows)--------------
-#options.add_argument("--headless") # Runs Chrome in headless mode.
-#options.add_argument('--no-sandbox') # Bypass OS security model
-#options.add_argument('--disable-gpu')  # applicable to windows os only
-#options.add_argument('start-maximized') #
-#options.add_argument('disable-infobars')
-#options.add_argument("--disable-extensions")
+if mac == 1:
+    #------------Dont Open A Browser (Mac)----------------
+    options.add_argument("--headless")  # Runs Chrome in headless mode.
+    options.add_argument('--no-sandbox')  # Bypass OS security model
+    options.add_argument('start-maximized')
+    options.add_argument('disable-infobars')
+    options.add_argument("--disable-extensions")
+    options.add_experimental_option("detach", True)
+else:
+    #----------Dont Open A Browser (Windows)--------------
+    options.add_argument("--headless") # Runs Chrome in headless mode.
+    options.add_argument('--no-sandbox') # Bypass OS security model
+    options.add_argument('--disable-gpu')  # applicable to windows os only
+    options.add_argument('start-maximized') #
+    options.add_argument('disable-infobars')
+    options.add_argument("--disable-extensions")
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 driver.set_window_position(970,0)
@@ -81,7 +82,6 @@ def reset():
     discount_price.clear()
     new_list.clear()
     newer_list.clear()
-    size_list.clear()
     xpath_list.clear()
     temp_list_integer.clear()
     temp_list_string.clear()
@@ -246,7 +246,8 @@ def bundleFinder():
 
 
 def skinCheck(name):
-    print('                                                                   ----- New Skins, Rechecking -----')
+    if count != 0:
+        print('                                                                   ----- New Skins, Rechecking -----')
     item = sm.get_csgo_item(name, currency='USD')
     if item is None:
         print(                                                         "Skin Library is down, Try again later :(")
@@ -256,7 +257,7 @@ def skinCheck(name):
         exit()
     item_price = item.values()
     for key in item.keys():
-        if item[key] == False:
+        if item[key] == False and mac == 1:
             print("Item Not Found")
             return
         list.append(item[key])
@@ -269,17 +270,19 @@ def skinCheck(name):
 def printsStatement():
     for e in range(len(store_name)):
         findLink(store_name[e])
-        multiplier = float(prices[e])/float(newer_list[e])
-        multiplier = str(round(multiplier, 2))
+        if store_name[e] != 'Bundle                              ':  #Calculating how good a deal this is (multiplier)
+            multiplier = float(prices[e])/float(newer_list[e])
+            multiplier = str(round(multiplier, 2))
         if store_name[e] == 'Bundle                              ':
             statement.append(Fore.YELLOW + 'Bundle')
         elif (float(newer_list[e]) * goodMultiplier) > prices[e]:
             statement.append(Fore.RED + 'BAD DEAL - ' + multiplier + 'x')
         else:
             statement.append(Fore.GREEN +'GOOD DEAL - ' + multiplier + 'x')
-            os.system('say "Good Deal Spotted"')
+            if mac == 1:
+                os.system('say "Good Deal Spotted"')
         print(Style.RESET_ALL)
-        if prices[e] == 0.0000:
+        if prices[e] == 0.0000 or prices[e] == '      No Suggested Price                ':
             prices[e] = '      No Suggested Price                '
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27),prices[e], statement[e])
         else:
@@ -348,14 +351,13 @@ def main():
                         prices.insert(i, 0.0000)
         printsStatement()
         reset()
-    else:
+    else:   #If store doesn't change
         bundleFinder()
         for e in range(len(item_discount_price)):
             if len(store_name) != len(newer_list):
                 for i in range(len(bundleCount)):
                     if bundleCount[i] == 'Bundle':
                         store_name.insert(i, bundleCount[i] + '                              ')
-                        prices.insert(i, 0.0000)
         printsStatement()
 
     if len(item_discount_price) != 0:
@@ -376,19 +378,20 @@ openBoxes()
 
 def loop():
     for window in Windows:
+        if count % 20 == 0:  #Every 100 check to ensure steam market is working
+            steamMarketWorking()
         driver.switch_to.window(window)
         driver.refresh()
         time.sleep(0.5)
         main()
         openBoxes()
-        if count % 20 == 0:  #Every 100 check to ensure steam market is working
-            steamMarketWorking()
 
 while True:
     time.sleep(1)  # sleep for 5 seconds
     count = count + 1
     Windows = driver.window_handles
     print('+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
-    print('|                                                                 |     Refreshing, Refresh #', count,'     |                                                                  |')
+    print('|                                                                 |     Refreshing, Refresh #', count,'     |   Items in store =' ,len(size_list) ,'                                              |')
     print('+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
+    size_list.clear()
     loop()
