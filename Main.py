@@ -17,13 +17,14 @@ mac = 1
 
 #-----------Variables-----------
 Sum = 0
-exchangeRate = 1.5703395
+exchangeRate = 1.569893
 correctionFactor = 1
 goodMultiplier = 2.8
 empty = True
 bundles = False
 bundleMismatch = False
 itemSound = False
+goodDeal = False
 store_not_empty = 0
 #--------------------------------
 
@@ -246,8 +247,6 @@ def bundleFinder():
 
 
 def skinCheck(name):
-    if count != 0:
-        print('                                                                   ----- New Skins, Rechecking -----')
     item = sm.get_csgo_item(name, currency='USD')
     if item is None:
         print(                                                         "Skin Library is down, Try again later :(")
@@ -279,8 +278,9 @@ def printsStatement():
             statement.append(Fore.RED + 'BAD DEAL - ' + multiplier + 'x')
         else:
             statement.append(Fore.GREEN +'GOOD DEAL - ' + multiplier + 'x')
-            if mac == 1:
+            if mac == 1 and goodDeal == False:
                 os.system('say "Good Deal Spotted"')
+                goodDeal = True
         print(Style.RESET_ALL)
         if prices[e] == 0.0000 or prices[e] == '      No Suggested Price                ':
             prices[e] = '      No Suggested Price                '
@@ -288,6 +288,7 @@ def printsStatement():
         else:
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ' ,new_link)
     print(Style.RESET_ALL)
+    print('\n')
     newer_list.clear()
     reset()
 
@@ -320,6 +321,15 @@ def main():
     for g in range(len(newer_list)):
         size_list.append(newer_list[g])
 
+    print(
+        '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
+    print('|                            Time Elapsed: ',round(time.time() - start, 2) ,'s                |     Refreshing, Refresh #', count,
+          '     |   Items in store =', len(size_list), '                                           |')
+    print(
+        '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
+    if count % 20 == 0 and count != 0 and count != 1:  # Every 100 check to ensure steam market is working
+        steamMarketWorking()
+
     newerer_list = newer_list
     res = [eval(i) for i in newerer_list]
     Sum = sum(res)
@@ -331,15 +341,17 @@ def main():
         #print('                                            Number of single items:', len(store_name))
         #print('                                            Number of bundles:     ', len(size_list) - len(store_name))
         global itemSound
-        if itemSound == True:
+        if itemSound == True and mac == 1:
             os.system('say "Item Found"')
             itemSound = False
     else:
-        print('                                                                Store empty, Refreshing Momentarily....')
+        print('                                                                  Store empty, Refreshing Momentarily....')
         itemSound = True
 
     if checkList[0] != checkList[1]:
         prices.clear()
+        if count != 0:
+            print('                                                                   ----- New Skins, Rechecking -----')
         for i in range(len(store_name)):
             skinCheck(store_name[i])
         bundleFinder()
@@ -368,7 +380,8 @@ def main():
         empty = True
         return empty
 
-print('                                           ******************* Code Starting - Code By Evan Holfich *******************')
+print('                                              ******************* Code Starting - Code By Evan Holfich *******************')
+start = time.time()
 steamMarketWorking()
 driver.get("https://www.wtfskins.com/withdraw")
 time.sleep(0.5)
@@ -378,8 +391,6 @@ openBoxes()
 
 def loop():
     for window in Windows:
-        if count % 20 == 0:  #Every 100 check to ensure steam market is working
-            steamMarketWorking()
         driver.switch_to.window(window)
         driver.refresh()
         time.sleep(0.5)
@@ -387,11 +398,8 @@ def loop():
         openBoxes()
 
 while True:
-    time.sleep(1)  # sleep for 5 seconds
+    time.sleep(3)  # sleep for 3 seconds
     count = count + 1
     Windows = driver.window_handles
-    print('+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
-    print('|                                                                 |     Refreshing, Refresh #', count,'     |   Items in store =' ,len(size_list) ,'                                              |')
-    print('+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
     size_list.clear()
     loop()
