@@ -12,6 +12,10 @@ from colorama import Fore, Back, Style
 from forex_python.converter import CurrencyRates
 import os
 import pyshorteners
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
+
 
 mac = 1
 
@@ -192,8 +196,11 @@ def openBoxes():
     for i in range(len(size_list)):
         driver.refresh()
         driver.implicitly_wait(0.1)
-        button = driver.find_element(By.XPATH, xpath_list[i])
-        button.click()
+        try:
+            button = driver.find_element(By.XPATH, xpath_list[i])
+            button.click()
+        except NoSuchElementException:
+            print("                                                  exception handled")
 
 def bundleFinder():
     for x in range(len(bundleSoup)):
