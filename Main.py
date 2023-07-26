@@ -20,10 +20,12 @@ from selenium.common.exceptions import NoSuchElementException
 
 
 mac = 1
+trackItem = True
+myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
 
 #-----------Variables-----------
 Sum = 0
-exchangeRate = 1.6089548
+exchangeRate = 1.6091524
 correctionFactor = 1
 goodMultiplier = 2.82
 empty = True
@@ -33,8 +35,7 @@ itemSound = False
 store_not_empty = 0
 myItemBool = False
 goodDeal = False
-
-myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
+itemHasBeenInStore = False
 #--------------------------------
 
 options = Options()
@@ -85,6 +86,8 @@ checkList = [0, 0]
 
 count = 0
 count2 = 0
+goneCount = 0
+trackingCount = 0
 
 def reset():
     list.clear()
@@ -308,12 +311,24 @@ def printsStatement():
         else:
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ' ,new_link)
 
-    global myItemBool
-    if myItem not in store_name and myItemBool == False and count != 0:
-        os.system('say "Item Has Been Sold"')
-        myItemBool = True
-    if myItem in store_name:
-        myItemBool = False
+    global trackItem
+    if trackItem == True:
+        global myItemBool
+        global goneCount
+        global trackingCount
+        global itemHasBeenInStore
+        if myItem not in store_name and myItemBool == False and count != 0 and itemHasBeenInStore == True:
+            goneCount = goneCount + 1
+            if goneCount == 2:
+                os.system('say "Item Has Been Sold or expired"')
+                myItemBool = True
+        if myItem in store_name:
+            itemHasBeenInStore = True
+            myItemBool = False
+            trackingCount = trackingCount + 1
+            if trackingCount == 1:
+                os.system('say "Currently Tracking My Item"')
+            goneCount = 0
 
     if 'GOOD DEAL' not in str(statement):
         goodDeal = False
