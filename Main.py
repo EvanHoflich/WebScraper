@@ -1,4 +1,6 @@
 import time
+
+import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -21,7 +23,7 @@ mac = 1
 
 #-----------Variables-----------
 Sum = 0
-exchangeRate = 1.569893
+exchangeRate = 1.6089548
 correctionFactor = 1
 goodMultiplier = 2.82
 empty = True
@@ -29,6 +31,10 @@ bundles = False
 bundleMismatch = False
 itemSound = False
 store_not_empty = 0
+myItemBool = False
+goodDeal = False
+
+myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
 #--------------------------------
 
 options = Options()
@@ -51,7 +57,7 @@ else:
     options.add_argument("--disable-extensions")
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-driver.set_window_position(970,0)
+driver.set_window_position(970,0)   
 ua = UserAgent()
 opts = Options()
 opts.add_argument("user-agent="+ua.random)
@@ -178,7 +184,11 @@ def findLink(name):
 
     shortener = pyshorteners.Shortener()
     global new_link
-    new_link = shortener.tinyurl.short(a)
+    try:
+        new_link = shortener.tinyurl.short(a)
+    except requests.exceptions.Timeout:
+        print("Timeout occurred")
+        new_link = 'Unknown'
 
 def openBoxes():
     for x in range(len(size_list)):
@@ -200,7 +210,8 @@ def openBoxes():
             button = driver.find_element(By.XPATH, xpath_list[i])
             button.click()
         except NoSuchElementException:
-            print("                                                  exception handled")
+            # print(Fore.YELLOW + "                                                                     exception handled")
+            print(Style.RESET_ALL)
 
 def bundleFinder():
     for x in range(len(bundleSoup)):
@@ -261,7 +272,7 @@ def skinCheck(name):
         for g in range(5):
             print(5-g)
             time.sleep(1)
-        exit()
+        loop()
     item_price = item.values()
     for key in item.keys():
         if item[key] == False and mac == 1:
@@ -286,14 +297,27 @@ def printsStatement():
             statement.append(Fore.RED + 'BAD DEAL - ' + multiplier + 'x')
         else:
             statement.append(Fore.GREEN +'GOOD DEAL - ' + multiplier + 'x')
-            if mac == 1:
+            global goodDeal
+            if mac == 1 and goodDeal == False:
                 os.system('say "Good Deal Spotted"')
+                goodDeal = True
         print(Style.RESET_ALL)
         if prices[e] == 0.0000 or prices[e] == '      No Suggested Price                ':
             prices[e] = '      No Suggested Price                '
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27),prices[e], statement[e])
         else:
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ' ,new_link)
+
+    global myItemBool
+    if myItem not in store_name and myItemBool == False and count != 0:
+        os.system('say "Item Has Been Sold"')
+        myItemBool = True
+    if myItem in store_name:
+        myItemBool = False
+
+    if 'GOOD DEAL' not in str(statement):
+        goodDeal = False
+
     print(Style.RESET_ALL)
     print('\n')
     newer_list.clear()
@@ -330,7 +354,7 @@ def main():
 
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
-    print('|                            Time Elapsed: ',round(time.time() - start, 2) ,'s                |     Refreshing, Refresh #', count,
+    print('|               Time Elapsed: ',round(time.time() - start, 2) ,'s / ' ,round((time.time() - start)/60, 2), 'min               |   Refreshing, Refresh #', count,
           '     |   Items in store =', len(size_list), '                                           |')
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
@@ -349,7 +373,6 @@ def main():
         #print('                                            Number of bundles:     ', len(size_list) - len(store_name))
         global itemSound
         if itemSound == True and mac == 1:
-            os.system('say "Item Found"')
             itemSound = False
     else:
         print('                                                                  Store empty, Refreshing Momentarily....')
