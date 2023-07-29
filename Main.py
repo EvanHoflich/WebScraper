@@ -57,7 +57,7 @@ else:
     options.add_argument('disable-infobars')
     options.add_argument("--disable-extensions")
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager(version='114.0.5735.90').install()), options=options)
 driver.set_window_position(970,0)   
 ua = UserAgent()
 opts = Options()
@@ -320,7 +320,7 @@ def printsStatement():
         if myItem not in store_name and myItemBool == False and count != 0 and itemHasBeenInStore == True:
             goneCount = goneCount + 1
             if goneCount == 2:
-                os.system('say "Item Has Been Sold or expired"')
+                os.system('say "Item Sold or expired"')
                 myItemBool = True
         if myItem in store_name:
             itemHasBeenInStore = True
