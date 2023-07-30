@@ -58,7 +58,7 @@ else:
     options.add_argument("--disable-extensions")
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager(version='114.0.5735.90').install()), options=options)
-driver.set_window_position(970,0)   
+driver.set_window_position(970,0)
 ua = UserAgent()
 opts = Options()
 opts.add_argument("user-agent="+ua.random)
@@ -319,7 +319,8 @@ def printsStatement():
         global itemHasBeenInStore
         if myItem not in store_name and myItemBool == False and count != 0 and itemHasBeenInStore == True:
             goneCount = goneCount + 1
-            if goneCount == 2:
+            trackingCount = 0
+            if goneCount == 2:  #Give one extra refresh to account for incorrect reading
                 os.system('say "Item Sold or expired"')
                 myItemBool = True
         if myItem in store_name:
@@ -363,7 +364,7 @@ def main():
             newResult = result[result.find('\n') + 11: result.rfind('\n')]
         else:  # Filtering listing without discount
             newResult = result[result.find('\n') + 11: 20]
-        newer_list.append(newResult)
+        newer_list.append(newResult.replace(",", ""))
     for g in range(len(newer_list)):
         size_list.append(newer_list[g])
 
