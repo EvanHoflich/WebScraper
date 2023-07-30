@@ -1,5 +1,4 @@
 import time
-
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -11,23 +10,24 @@ import bs4
 import steammarket as sm
 from decimal import *
 from colorama import Fore, Back, Style
-from forex_python.converter import CurrencyRates
 import os
 import pyshorteners
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+import webbrowser
+import pyautogui
 
-
-mac = 1
-trackItem = True
+#------------------------Settings to change-----------------------
+autoDeposit = False  #Turn on if you want system to auto deposit item - this takes control of mouse
+mac = 1             #What operating system I am using
+trackItem = False    #Turn on if I want to track item
 myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
+#-----------------------------------------------------------------
 
 #-----------Variables-----------
 Sum = 0
-exchangeRate = 1.6091524
+exchangeRate = 1.6240422
 correctionFactor = 1
-goodMultiplier = 2.82
+goodMultiplier = 2.8
 empty = True
 bundles = False
 bundleMismatch = False
@@ -36,6 +36,7 @@ store_not_empty = 0
 myItemBool = False
 goodDeal = False
 itemHasBeenInStore = False
+itemInStore = False
 #--------------------------------
 
 options = Options()
@@ -88,6 +89,7 @@ count = 0
 count2 = 0
 goneCount = 0
 trackingCount = 0
+notInStoreCount = 0
 
 def reset():
     list.clear()
@@ -102,6 +104,18 @@ def reset():
     evans_list.clear()
     second_list.clear()
     statement.clear()
+
+def deposit():
+    # os.system('say "Depositing Skin"')
+    webbrowser.open_new('https://www.wtfskins.com/deposit/steam/p2p')
+    time.sleep(4)  #Wait for browser to load
+    pyautogui.click(x=900, y=500, clicks=1, button='left')  # Click on skin
+    time.sleep(0.2)
+    pyautogui.click(x=1300, y=350, clicks=1, button='left')  # Click on discount box
+    time.sleep(1)
+    pyautogui.click(x=1300, y=586, clicks=1, button='left')  # Choose 10% Discount
+    time.sleep(0.2)
+    pyautogui.click(x=1417, y=357, clicks=1, button='left')  # Click 'Deposit'
 
 def steamMarketWorking():
     item = sm.get_csgo_item('AK-47 | Frontside Misty (Field-Tested)', currency='USD')
@@ -317,19 +331,30 @@ def printsStatement():
         global goneCount
         global trackingCount
         global itemHasBeenInStore
+        global notInStoreCount
+        print(Style.RESET_ALL)
+        if myItem not in store_name and autoDeposit == True:   #Deposit Skin After 5 Refreshes of not being there
+            notInStoreCount = notInStoreCount + 1
+            if notInStoreCount <= 1:
+                print('                                                                    depositing item in', 1-notInStoreCount, 'refresh(s)')
+            if notInStoreCount == 1 and myItemBool == False:
+                deposit()
         if myItem not in store_name and myItemBool == False and count != 0 and itemHasBeenInStore == True:
             goneCount = goneCount + 1
             trackingCount = 0
-            if goneCount == 2:  #Give one extra refresh to account for incorrect reading
-                os.system('say "Item Sold or expired"')
+            itemInStore = False
+            print('Item in store = ', itemInStore)
+            if goneCount == 5 and itemInStore == False:  #Give four extra refresh to account for incorrect reading
+                os.system('say "Hooray, item sold!')
                 myItemBool = True
         if myItem in store_name:
             itemHasBeenInStore = True
             myItemBool = False
             trackingCount = trackingCount + 1
-            if trackingCount == 1:
-                os.system('say "Currently Tracking My Item"')
+            # if trackingCount == 1:
+            #     os.system('say "Currently Tracking My Item"')
             goneCount = 0
+            notInStoreCount = 0
 
     if 'GOOD DEAL' not in str(statement):
         goodDeal = False
@@ -340,6 +365,7 @@ def printsStatement():
     reset()
 
 def main():
+    print(Style.RESET_ALL)
     html = driver.page_source
     soup = bs4.BeautifulSoup(html, "html.parser")
     global bundleSoup
@@ -433,6 +459,7 @@ driver.get("https://www.wtfskins.com/withdraw")
 time.sleep(0.5)
 #driver.minimize_window()
 main()
+print(Style.RESET_ALL)
 openBoxes()
 
 def loop():
@@ -441,10 +468,10 @@ def loop():
         driver.refresh()
         time.sleep(0.5)
         main()
+        print(Style.RESET_ALL)
         openBoxes()
 
 while True:
-    time.sleep(0.5)  # sleep for 0.5 seconds
     count = count + 1
     Windows = driver.window_handles
     size_list.clear()
