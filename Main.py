@@ -135,17 +135,17 @@ def filterList(numbers, names):
     largest_3_data = sorted_data_largest[:3]
     smallest_numbers, smallest_names = zip(*smallest_3_data)
     largest_numbers, largest_names = zip(*largest_3_data)
-    print('[Skin History Summary]')
-    badDealTable.field_names = ['Num', Fore.RED + "Bad Skins" + Style.RESET_ALL,Fore.RED + "Multiplier" + Style.RESET_ALL,"Number", Fore.GREEN + "Good Skins" + Style.RESET_ALL,Fore.GREEN + "Multiplier" + Style.RESET_ALL]
+    print('[Skin History Summary - Evaluating ', len(numbers),'Unique Skin(s)]')
+    badDealTable.field_names = ['Num', Fore.RED + "Bad Skins" + Style.RESET_ALL,Fore.RED + "Multiplier" + Style.RESET_ALL," ", "Num.", Fore.GREEN + "Good Skins" + Style.RESET_ALL,Fore.GREEN + "Multiplier" + Style.RESET_ALL]
     if len(numbers) == 1:
-        badDealTable.add_row(["1.", smallest_names[0], smallest_numbers[0] + 'x',"1.", largest_names[0], largest_numbers[0] + 'x'])
+        badDealTable.add_row(["1. (Worst)", smallest_names[0], smallest_numbers[0] + 'x'," ","1. (Best)", largest_names[0], largest_numbers[0] + 'x'])
     if len(numbers) == 2:
-        badDealTable.add_row(["1.", smallest_names[0], smallest_numbers[0] + 'x',"1.", largest_names[0], largest_numbers[0] + 'x'])
-        badDealTable.add_row(["2.", smallest_names[1], smallest_numbers[1] + 'x',"2.", largest_names[1], largest_numbers[1] + 'x'])
+        badDealTable.add_row(["1. (Worst)", smallest_names[0], smallest_numbers[0] + 'x'," ", "1. (Best)", largest_names[0], largest_numbers[0] + 'x'])
+        badDealTable.add_row(["2.", smallest_names[1], smallest_numbers[1] + 'x'," ", "2.", largest_names[1], largest_numbers[1] + 'x'])
     if len(numbers) >= 3:
-        badDealTable.add_row(["1.", smallest_names[0], smallest_numbers[0] + 'x',"1.", largest_names[0], largest_numbers[0] + 'x'])
-        badDealTable.add_row(["2.", smallest_names[1], smallest_numbers[1] + 'x',"2.", largest_names[1], largest_numbers[1] + 'x'])
-        badDealTable.add_row(["3.", smallest_names[2], smallest_numbers[2] + 'x',"3.", largest_names[2], largest_numbers[2] + 'x'])
+        badDealTable.add_row(["1. (Worst)", smallest_names[0], smallest_numbers[0] + 'x'," ", "1. (Best)", largest_names[0], largest_numbers[0] + 'x'])
+        badDealTable.add_row(["2.", smallest_names[1], smallest_numbers[1] + 'x'," ", "2.", largest_names[1], largest_numbers[1] + 'x'])
+        badDealTable.add_row(["3.", smallest_names[2], smallest_numbers[2] + 'x'," ", "3.", largest_names[2], largest_numbers[2] + 'x'])
     print(badDealTable)
     badDealTable.clear()
 
@@ -434,9 +434,9 @@ def main():
           '     |   Items in store =', len(size_list), '                                           |')
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
-    if count % 50 == 0 and count != 0 and count != 1:  # Every 100 check to ensure steam market is working
+    if count % 1000 == 0 and count != 0:  # Every 100 check to ensure steam market is working
         steamMarketWorking()
-    if count % 100 == 0 and count != 0 and count != 1:
+    if count % 10 == 0 and count != 0:
         filterList(badDealTablePrice, badDealTableSkin)
 
     newerer_list = newer_list
@@ -451,7 +451,7 @@ def main():
         if itemSound == True and mac == 1:
             itemSound = False
     else:
-        print('                                                             --> Store empty, Refreshing Momentarily <--')
+        print('                                                              --> Store empty, Refreshing Momentarily <--')
         itemSound = True
 
     if checkList[0] != checkList[1]:
