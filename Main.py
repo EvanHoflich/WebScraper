@@ -15,24 +15,25 @@ import pyshorteners
 from selenium.common.exceptions import NoSuchElementException
 import webbrowser
 import pyautogui
+from prettytable import PrettyTable
+badDealTable = PrettyTable()
 
 #------------------------Settings to change-----------------------
 autoDeposit = False  #Turn on if you want system to auto deposit item - this takes control of mouse
 mac = 1             #What operating system I am using
 trackItem = False    #Turn on if I want to track item
 myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
+goodMultiplier = 2.8
+exchangeRate = 1.6240422
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
 Sum = 0
-exchangeRate = 1.6240422
-correctionFactor = 1
-goodMultiplier = 2.8
+store_not_empty = 0
 empty = True
 bundles = False
 bundleMismatch = False
 itemSound = False
-store_not_empty = 0
 myItemBool = False
 goodDeal = False
 itemHasBeenInStore = False
@@ -65,7 +66,7 @@ opts = Options()
 opts.add_argument("user-agent="+ua.random)
 
 #----------------Lists----------------
-list = []
+myList = []
 prices = []
 store_name = []
 discount_price = []
@@ -82,17 +83,23 @@ statement = []
 gunNameList = []
 skinNameList = []
 skinWearList = []
+goodDealTableSkin = []
+goodDealTablePrice = []
+badDealTableSkin = []
+badDealTablePrice = []
 checkList = [0, 0]
 #--------------------------------------
 
+#---------Counts-----------
 count = 0
 count2 = 0
 goneCount = 0
 trackingCount = 0
 notInStoreCount = 0
+#--------------------------
 
 def reset():
-    list.clear()
+    myList.clear()
     store_name.clear()
     discount_price.clear()
     new_list.clear()
@@ -116,6 +123,31 @@ def deposit():
     pyautogui.click(x=1300, y=586, clicks=1, button='left')  # Choose 10% Discount
     time.sleep(0.2)
     pyautogui.click(x=1417, y=357, clicks=1, button='left')  # Click 'Deposit'
+
+def filterList(numbers, names):
+    if not numbers or not names:
+        print(Fore.YELLOW,"                                                                          No Store History" + Style.RESET_ALL,)
+        return [], [], [], []
+    zipped_data = list(zip(numbers, names))
+    sorted_data_smallest = sorted(zipped_data, key=lambda x: x[0])
+    sorted_data_largest = sorted(zipped_data, key=lambda x: x[0], reverse=True)
+    smallest_3_data = sorted_data_smallest[:3]
+    largest_3_data = sorted_data_largest[:3]
+    smallest_numbers, smallest_names = zip(*smallest_3_data)
+    largest_numbers, largest_names = zip(*largest_3_data)
+    print('[Skin History Summary]')
+    badDealTable.field_names = ['Num', Fore.RED + "Bad Skins" + Style.RESET_ALL,Fore.RED + "Multiplier" + Style.RESET_ALL,"Number", Fore.GREEN + "Good Skins" + Style.RESET_ALL,Fore.GREEN + "Multiplier" + Style.RESET_ALL]
+    if len(numbers) == 1:
+        badDealTable.add_row(["1.", smallest_names[0], smallest_numbers[0] + 'x',"1.", largest_names[0], largest_numbers[0] + 'x'])
+    if len(numbers) == 2:
+        badDealTable.add_row(["1.", smallest_names[0], smallest_numbers[0] + 'x',"1.", largest_names[0], largest_numbers[0] + 'x'])
+        badDealTable.add_row(["2.", smallest_names[1], smallest_numbers[1] + 'x',"2.", largest_names[1], largest_numbers[1] + 'x'])
+    if len(numbers) >= 3:
+        badDealTable.add_row(["1.", smallest_names[0], smallest_numbers[0] + 'x',"1.", largest_names[0], largest_numbers[0] + 'x'])
+        badDealTable.add_row(["2.", smallest_names[1], smallest_numbers[1] + 'x',"2.", largest_names[1], largest_numbers[1] + 'x'])
+        badDealTable.add_row(["3.", smallest_names[2], smallest_numbers[2] + 'x',"3.", largest_names[2], largest_numbers[2] + 'x'])
+    print(badDealTable)
+    badDealTable.clear()
 
 def steamMarketWorking():
     item = sm.get_csgo_item('AK-47 | Frontside Misty (Field-Tested)', currency='USD')
@@ -227,7 +259,6 @@ def openBoxes():
             button = driver.find_element(By.XPATH, xpath_list[i])
             button.click()
         except NoSuchElementException:
-            # print(Fore.YELLOW + "                                                                     exception handled")
             print(Style.RESET_ALL)
 
 def bundleFinder():
@@ -285,7 +316,7 @@ def bundleFinder():
 def skinCheck(name):
     item = sm.get_csgo_item(name, currency='USD')
     if item is None:
-        print(                                                         "Skin Library is down, Try again later :(")
+        print("                                                         Skin Library is down, Try again later :(")
         for g in range(5):
             print(5-g)
             time.sleep(1)
@@ -295,12 +326,12 @@ def skinCheck(name):
         if item[key] == False and mac == 1:
             print("Item Not Found")
             return
-        list.append(item[key])
-    USDPrice = list[1][1:]
+        myList.append(item[key])
+    USDPrice = myList[1][1:]
     USDPrice = USDPrice.replace(",", "")
-    NZDPrice = Decimal(USDPrice) * Decimal(exchangeRate) * Decimal(correctionFactor)
+    NZDPrice = Decimal(USDPrice) * Decimal(exchangeRate)
     prices.append(NZDPrice) #To Calculate total
-    list.clear()
+    myList.clear()
 
 def printsStatement():
     for e in range(len(store_name)):
@@ -324,6 +355,12 @@ def printsStatement():
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27),prices[e], statement[e])
         else:
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ' ,new_link)
+        if store_name[e] not in goodDealTableSkin and store_name[e] != 'Bundle':
+            goodDealTableSkin.append(store_name[e])
+            goodDealTablePrice.append(multiplier)
+            badDealTableSkin.append(store_name[e])
+            badDealTablePrice.append(multiplier)
+
 
     global trackItem
     if trackItem == True:
@@ -351,8 +388,6 @@ def printsStatement():
             itemHasBeenInStore = True
             myItemBool = False
             trackingCount = trackingCount + 1
-            # if trackingCount == 1:
-            #     os.system('say "Currently Tracking My Item"')
             goneCount = 0
             notInStoreCount = 0
 
@@ -400,8 +435,10 @@ def main():
           '     |   Items in store =', len(size_list), '                                           |')
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
-    if count % 20 == 0 and count != 0 and count != 1:  # Every 100 check to ensure steam market is working
+    if count % 50 == 0 and count != 0 and count != 1:  # Every 100 check to ensure steam market is working
         steamMarketWorking()
+    if count % 100 == 0 and count != 0 and count != 1:
+        filterList(badDealTablePrice, badDealTableSkin)
 
     newerer_list = newer_list
     res = [eval(i) for i in newerer_list]
@@ -411,19 +448,17 @@ def main():
         checkList.pop(0)
 
     if len(store_name) > 0 or len(newer_list) > 0:
-        #print('                                            Number of single items:', len(store_name))
-        #print('                                            Number of bundles:     ', len(size_list) - len(store_name))
         global itemSound
         if itemSound == True and mac == 1:
             itemSound = False
     else:
-        print('                                                                  Store empty, Refreshing Momentarily....')
+        print('                                                             --> Store empty, Refreshing Momentarily <--')
         itemSound = True
 
     if checkList[0] != checkList[1]:
         prices.clear()
         if count != 0:
-            print('                                                               ----- Different Skins, Rechecking -----')
+            print('                                                                 ----- Different Skins, Rechecking -----')
         for i in range(len(store_name)):
             skinCheck(store_name[i])
         bundleFinder()
@@ -457,7 +492,6 @@ start = time.time()
 steamMarketWorking()
 driver.get("https://www.wtfskins.com/withdraw")
 time.sleep(0.5)
-#driver.minimize_window()
 main()
 print(Style.RESET_ALL)
 openBoxes()
