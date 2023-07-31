@@ -24,7 +24,7 @@ mac = 1             #What operating system I am using
 trackItem = False    #Turn on if I want to track item
 myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
 goodMultiplier = 2.8
-exchangeRate = 1.6240422
+exchangeRate = 1.6121616
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
@@ -355,12 +355,11 @@ def printsStatement():
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27),prices[e], statement[e])
         else:
             print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ' ,new_link)
-        if store_name[e] not in goodDealTableSkin and store_name[e] != 'Bundle':
+        if store_name[e] not in goodDealTableSkin and 'Bundle' not in store_name[e]:
             goodDealTableSkin.append(store_name[e])
             goodDealTablePrice.append(multiplier)
             badDealTableSkin.append(store_name[e])
             badDealTablePrice.append(multiplier)
-
 
     global trackItem
     if trackItem == True:
