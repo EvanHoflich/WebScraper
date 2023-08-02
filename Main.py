@@ -24,6 +24,7 @@ autoBuyMax = 5   #Maxmimum item price the auto buyer will purchase
 autoDepositBool = False  #Turn on if you want system to auto deposit item - this takes control of mouse
 mac = 1             #What operating system I am using
 trackItem = False    #Turn on if I want to track item
+findLinkBool = True  #Turn on if finding link is having issues
 myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
 goodMultiplier = 2.6
 exchangeRate = 1.6347589
@@ -210,84 +211,85 @@ def steamMarketWorking():
         print(Style.RESET_ALL)
 
 def findLink(name):
+    if findLinkBool == True:
+        gunNameList.clear()
+        skinNameList.clear()
+        skinWearList.clear()
 
-    gunNameList.clear()
-    skinNameList.clear()
-    skinWearList.clear()
+        if name == 'Bundle':
+            name = 'MAC-10 | Monkeyflage (Well-Worn)'
 
-    if name == 'Bundle':
-        name = 'MAC-10 | Monkeyflage (Well-Worn)'
+        vanilla = False
+        knife = False
+        IndexGunName = 0
+        counters = 0
+        x = name.split()
 
-    vanilla = False
-    knife = False
-    IndexGunName = 0
-    counters = 0
-    x = name.split()
+        for i in range(len(x)):
+            if '★' in x and len(x) < 2:
+                x.remove(x[0])
+                vanilla = True
+            if '★' in x and len(x) < 2:
+                knife = True
 
-    for i in range(len(x)):
-        if '★' in x and len(x) < 2:
-            x.remove(x[0])
-            vanilla = True
-        if '★' in x and len(x) < 2:
-            knife = True
+        for i in range(len(x)):
+            if x[i] == '|':
+                IndexGunName = i
 
-    for i in range(len(x)):
-        if x[i] == '|':
-            IndexGunName = i
+        if IndexGunName != 0:
+            for i in range(IndexGunName):  # Find Gun Name
+                gunNameList.append(x[i])
 
-    if IndexGunName != 0:
-        for i in range(IndexGunName):  # Find Gun Name
-            gunNameList.append(x[i])
+        for j in range(len(x)):  # Find where skin wear index is
+            if "(" in x[j]:
+                skinWearIndex = j
+                break
+            else:
+                skinWearIndex = 0
 
-    for j in range(len(x)):  # Find where skin wear index is
-        if "(" in x[j]:
-            skinWearIndex = j
-            break
+        for i in range(skinWearIndex, len(x)):  # Adds skin wear to list
+            skinWearList.append(x[i])
+
+        for i in range(IndexGunName + 1, skinWearIndex):  # Adds gun name to list
+            skinNameList.append(x[i])
+
+        for i in range(len(gunNameList) - 1):
+            counters = counters + 1
+            gunNameList.insert(i + counters, '%20')
+
+        for l in range(len(skinNameList) - 1):
+            l = l + 1
+            skinNameList.insert(l, '%20')
+
+        for i in range(len(skinWearList) - 1):
+            i = i + 1
+            skinWearList.insert(i, '%20')
+
+        gunName = ''.join(gunNameList)
+        skinName = ''.join(skinNameList)
+        skinWear = ''.join(skinWearList)
+
+        if 'Minimal' in skinWearList[0]:
+            a = 'https://steamcommunity.com/market/listings/730/' + gunName + '%20%7C%20' + skinName + '%20(Minimal%20Wear)'
+        elif 'Factory' in skinWearList[0]:
+            a = 'https://steamcommunity.com/market/listings/730/' + gunName + '%20%7C%20' + skinName + '%20%28Factory%20New%29'
+        elif vanilla == True:
+            a = 'https://steamcommunity.com/market/listings/730/%E2%98%85%20' + skinWear
+        elif knife == True:
+            a = 'https://steamcommunity.com/market/listings/730/%E2%98%85%20' + gunName + '%20%7C%20' + skinName + '%20' + skinWear
         else:
-            skinWearIndex = 0
+            skinWear = skinWear.replace('(', '')
+            skinWear = skinWear.replace(')', '')
+            a = 'https://steamcommunity.com/market/listings/730/' + gunName + '%20%7C%20' + skinName + '%20%28' + skinWear + '%29'
 
-    for i in range(skinWearIndex, len(x)):  # Adds skin wear to list
-        skinWearList.append(x[i])
-
-    for i in range(IndexGunName + 1, skinWearIndex):  # Adds gun name to list
-        skinNameList.append(x[i])
-
-    for i in range(len(gunNameList) - 1):
-        counters = counters + 1
-        gunNameList.insert(i + counters, '%20')
-
-    for l in range(len(skinNameList) - 1):
-        l = l + 1
-        skinNameList.insert(l, '%20')
-
-    for i in range(len(skinWearList) - 1):
-        i = i + 1
-        skinWearList.insert(i, '%20')
-
-    gunName = ''.join(gunNameList)
-    skinName = ''.join(skinNameList)
-    skinWear = ''.join(skinWearList)
-
-    if 'Minimal' in skinWearList[0]:
-        a = 'https://steamcommunity.com/market/listings/730/' + gunName + '%20%7C%20' + skinName + '%20(Minimal%20Wear)'
-    elif 'Factory' in skinWearList[0]:
-        a = 'https://steamcommunity.com/market/listings/730/' + gunName + '%20%7C%20' + skinName + '%20%28Factory%20New%29'
-    elif vanilla == True:
-        a = 'https://steamcommunity.com/market/listings/730/%E2%98%85%20' + skinWear
-    elif knife == True:
-        a = 'https://steamcommunity.com/market/listings/730/%E2%98%85%20' + gunName + '%20%7C%20' + skinName + '%20' + skinWear
+        shortener = pyshorteners.Shortener()
+        global new_link
+        try:
+            new_link = shortener.tinyurl.short(a)
+        except requests.exceptions.Timeout:
+            new_link = 'Unknown'
     else:
-        skinWear = skinWear.replace('(', '')
-        skinWear = skinWear.replace(')', '')
-        a = 'https://steamcommunity.com/market/listings/730/' + gunName + '%20%7C%20' + skinName + '%20%28' + skinWear + '%29'
-
-    shortener = pyshorteners.Shortener()
-    global new_link
-    try:
-        new_link = shortener.tinyurl.short(a)
-    except requests.exceptions.Timeout:
-        print("Timeout occurred")
-        new_link = 'Unknown'
+        new_link = 'No Link :('
 
 def openBoxes():
     for x in range(len(size_list)):
