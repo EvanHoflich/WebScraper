@@ -19,13 +19,13 @@ from prettytable import PrettyTable
 badDealTable = PrettyTable()
 
 #------------------------Settings to change-----------------------
-autoBuyBool = True  #Turn this setting on so the bot will automatically purchase good deals
+autoBuyBool = False  #Turn this setting on so the bot will automatically purchase good deals
 autoBuyMax = 5   #Maxmimum item price the auto buyer will purchase
-autoDeposit = False  #Turn on if you want system to auto deposit item - this takes control of mouse
+autoDepositBool = False  #Turn on if you want system to auto deposit item - this takes control of mouse
 mac = 1             #What operating system I am using
 trackItem = False    #Turn on if I want to track item
 myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
-goodMultiplier = 2.45
+goodMultiplier = 2.6
 exchangeRate = 1.6347589
 #-----------------------------------------------------------------
 
@@ -115,7 +115,7 @@ def reset():
     second_list.clear()
     statement.clear()
 
-def deposit():
+def autoDeposit():
     # os.system('say "Depositing Skin"')
     webbrowser.open_new('https://www.wtfskins.com/deposit/steam/p2p')
     time.sleep(4)  #Wait for browser to load
@@ -421,12 +421,12 @@ def printsStatement():
         global itemHasBeenInStore
         global notInStoreCount
         print(Style.RESET_ALL)
-        if myItem not in skinList and autoDeposit == True:   #Deposit Skin After 5 Refreshes of not being there
+        if myItem not in skinList and autoDepositBool == True:   #Deposit Skin After 5 Refreshes of not being there
             notInStoreCount = notInStoreCount + 1
             if notInStoreCount <= 1:
                 print('                                                                    depositing item in', 1-notInStoreCount, 'refresh(s)')
             if notInStoreCount == 1 and myItemBool == False:
-                deposit()
+                autoDeposit()
         if myItem not in skinList and myItemBool == False and count != 0 and itemHasBeenInStore == True:
             goneCount = goneCount + 1
             trackingCount = 0
