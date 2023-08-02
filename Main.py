@@ -19,12 +19,14 @@ from prettytable import PrettyTable
 badDealTable = PrettyTable()
 
 #------------------------Settings to change-----------------------
+autoBuyBool = True  #Turn this setting on so the bot will automatically purchase good deals
+autoBuyMax = 5   #Maxmimum item price the auto buyer will purchase
 autoDeposit = False  #Turn on if you want system to auto deposit item - this takes control of mouse
 mac = 1             #What operating system I am using
 trackItem = False    #Turn on if I want to track item
 myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
-goodMultiplier = 2.8
-exchangeRate = 1.6121616
+goodMultiplier = 2.45
+exchangeRate = 1.6347589
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
@@ -68,10 +70,10 @@ opts.add_argument("user-agent="+ua.random)
 #----------------Lists----------------
 myList = []
 prices = []
-store_name = []
+skinList = []
 discount_price = []
 new_list = []
-newer_list = []
+priceList = []
 size_list = []
 xpath_list = []
 temp_list_integer = []
@@ -96,14 +98,15 @@ count2 = 0
 goneCount = 0
 trackingCount = 0
 notInStoreCount = 0
+goodDealIndex = 0
 #--------------------------
 
 def reset():
     myList.clear()
-    store_name.clear()
+    skinList.clear()
     discount_price.clear()
     new_list.clear()
-    newer_list.clear()
+    priceList.clear()
     xpath_list.clear()
     temp_list_integer.clear()
     temp_list_string.clear()
@@ -124,6 +127,53 @@ def deposit():
     time.sleep(0.2)
     pyautogui.click(x=1417, y=357, clicks=1, button='left')  # Click 'Deposit'
 
+def autoBuy(autoBuyIndex):
+    if autoBuyIndex == 0:
+        os.system('say "Purchasing item in first slot"')
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        time.sleep(1)  # Wait for browser to load
+        pyautogui.click(x=430, y=760, clicks=1, button='left')  # Click on skin
+        time.sleep(0.05)
+        pyautogui.click(x=410, y=760, clicks=1, button='left')  # Click on skin
+    if autoBuyIndex == 1:
+        os.system('say "Purchasing item in second slot"')
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        time.sleep(1.3)  # Wait for browser to load
+        pyautogui.click(x=600, y=760, clicks=1, button='left')  # Click on skin
+        time.sleep(0.05)
+        pyautogui.click(x=580, y=760, clicks=1, button='left')  # Click on skin
+    if autoBuyIndex == 2:
+        os.system('say "Purchasing item in third slot"')
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        time.sleep(1.65)  # Wait for browser to load
+        pyautogui.click(x=770, y=760, clicks=1, button='left')  # Click on skin
+        time.sleep(0.05)
+        pyautogui.click(x=750, y=760, clicks=1, button='left')  # Click on skin
+    if autoBuyIndex == 3:
+        os.system('say "Purchasing item in Fourth slot"')
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        time.sleep(2)  # Wait for browser to load
+        pyautogui.click(x=940, y=760, clicks=1, button='left')  # Click on skin
+        time.sleep(0.05)
+        pyautogui.click(x=920, y=760, clicks=1, button='left')  # Click on skin
+    if autoBuyIndex == 4:
+        os.system('say "Purchasing item in Fifth slot"')
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        time.sleep(2.15)  # Wait for browser to load
+        pyautogui.click(x=1100, y=760, clicks=1, button='left')  # Click on skin
+        time.sleep(0.05)
+        pyautogui.click(x=1080, y=760, clicks=1, button='left')  # Click on skin
+    if autoBuyIndex == 5:
+        os.system('say "Purchasing item in Sixth slot"')
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        time.sleep(2.3)  # Wait for browser to load
+        pyautogui.click(x=1270, y=760, clicks=1, button='left')  # Click on skin
+        time.sleep(0.05)
+        pyautogui.click(x=1250, y=760, clicks=1, button='left')  # Click on skin
+    else:
+        return
+
+
 def filterList(numbers, names):
     if not numbers or not names:
         print(Fore.YELLOW,"                                                                          No Store History" + Style.RESET_ALL,)
@@ -135,7 +185,7 @@ def filterList(numbers, names):
     largest_3_data = sorted_data_largest[:3]
     smallest_numbers, smallest_names = zip(*smallest_3_data)
     largest_numbers, largest_names = zip(*largest_3_data)
-    print('[Skin History Summary - Evaluating ', len(numbers),'Unique Skin(s)]')
+    print('[Skin History Summary - Evaluating ',Fore.GREEN + str(len(numbers)) + Style.RESET_ALL, 'Unique Skin(s)]')
     badDealTable.field_names = ['Num', Fore.RED + "Bad Skins" + Style.RESET_ALL,Fore.RED + "Multiplier" + Style.RESET_ALL," ", "Num.", Fore.GREEN + "Good Skins" + Style.RESET_ALL,Fore.GREEN + "Multiplier" + Style.RESET_ALL]
     if len(numbers) == 1:
         badDealTable.add_row(["1. (Worst)", smallest_names[0], smallest_numbers[0] + 'x'," ","1. (Best)", largest_names[0], largest_numbers[0] + 'x'])
@@ -298,7 +348,7 @@ def bundleFinder():
         if bundleCount[i] > 0:
             m = m+1
 
-    num_bundles = len(size_list) - len(store_name)
+    num_bundles = len(size_list) - len(skinList)
 
     if num_bundles != m:
         for i in range(num_bundles-m):
@@ -334,14 +384,14 @@ def skinCheck(name):
     myList.clear()
 
 def printsStatement():
-    for e in range(len(store_name)):
-        findLink(store_name[e])
-        if store_name[e] != 'Bundle                              ':  #Calculating how good a deal this is (multiplier)
-            multiplier = float(prices[e])/float(newer_list[e])
+    for e in range(len(skinList)):
+        findLink(skinList[e])
+        if skinList[e] != 'Bundle                              ':  #Calculating how good a deal this is (multiplier)
+            multiplier = float(prices[e])/float(priceList[e])
             multiplier = str(round(multiplier, 2))
-        if store_name[e] == 'Bundle                              ':
+        if skinList[e] == 'Bundle                              ':
             statement.append(Fore.YELLOW + 'Bundle')
-        elif (float(newer_list[e]) * goodMultiplier) > prices[e]:
+        elif (float(priceList[e]) * goodMultiplier) > prices[e]:
             statement.append(Fore.RED + 'BAD DEAL - ' + multiplier + 'x')
         else:
             statement.append(Fore.GREEN +'GOOD DEAL - ' + multiplier + 'x')
@@ -349,16 +399,18 @@ def printsStatement():
             if mac == 1 and goodDeal == False:
                 os.system('say "Good Deal Spotted"')
                 goodDeal = True
+                if autoBuyBool == True and float(priceList[e]) < float(autoBuyMax):
+                    autoBuy(e)
         print(Style.RESET_ALL)
         if prices[e] == 0.0000 or prices[e] == '      No Suggested Price                ':
             prices[e] = '      No Suggested Price                '
-            print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(27),prices[e], statement[e])
+            print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(27), prices[e], statement[e])
         else:
-            print((str(store_name[e]) + '\t' + 'Site Price: $' + newer_list[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ' ,new_link)
-        if store_name[e] not in goodDealTableSkin and 'Bundle' not in store_name[e]:
-            goodDealTableSkin.append(store_name[e])
+            print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ', new_link)
+        if skinList[e] not in goodDealTableSkin and 'Bundle' not in skinList[e]:
+            goodDealTableSkin.append(skinList[e])
             goodDealTablePrice.append(multiplier)
-            badDealTableSkin.append(store_name[e])
+            badDealTableSkin.append(skinList[e])
             badDealTablePrice.append(multiplier)
 
     global trackItem
@@ -369,13 +421,13 @@ def printsStatement():
         global itemHasBeenInStore
         global notInStoreCount
         print(Style.RESET_ALL)
-        if myItem not in store_name and autoDeposit == True:   #Deposit Skin After 5 Refreshes of not being there
+        if myItem not in skinList and autoDeposit == True:   #Deposit Skin After 5 Refreshes of not being there
             notInStoreCount = notInStoreCount + 1
             if notInStoreCount <= 1:
                 print('                                                                    depositing item in', 1-notInStoreCount, 'refresh(s)')
             if notInStoreCount == 1 and myItemBool == False:
                 deposit()
-        if myItem not in store_name and myItemBool == False and count != 0 and itemHasBeenInStore == True:
+        if myItem not in skinList and myItemBool == False and count != 0 and itemHasBeenInStore == True:
             goneCount = goneCount + 1
             trackingCount = 0
             itemInStore = False
@@ -383,7 +435,7 @@ def printsStatement():
             if goneCount == 5 and itemInStore == False:  #Give four extra refresh to account for incorrect reading
                 os.system('say "Hooray, item sold!')
                 myItemBool = True
-        if myItem in store_name:
+        if myItem in skinList:
             itemHasBeenInStore = True
             myItemBool = False
             trackingCount = trackingCount + 1
@@ -395,7 +447,7 @@ def printsStatement():
 
     print(Style.RESET_ALL)
     print('\n')
-    newer_list.clear()
+    priceList.clear()
     reset()
 
 def main():
@@ -408,7 +460,7 @@ def main():
     item_store_name = soup.find_all("div", {"class": "item-name"})
 
     for name in item_store_name:
-        store_name.append(name.text)
+        skinList.append(name.text)
 
     for discount in item_discount_price:
         discount_price.append(discount.text)
@@ -424,9 +476,9 @@ def main():
             newResult = result[result.find('\n') + 11: result.rfind('\n')]
         else:  # Filtering listing without discount
             newResult = result[result.find('\n') + 11: 20]
-        newer_list.append(newResult.replace(",", ""))
-    for g in range(len(newer_list)):
-        size_list.append(newer_list[g])
+        priceList.append(newResult.replace(",", ""))
+    for g in range(len(priceList)):
+        size_list.append(priceList[g])
 
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
@@ -439,14 +491,14 @@ def main():
     if count % 10 == 0 and count != 0:
         filterList(badDealTablePrice, badDealTableSkin)
 
-    newerer_list = newer_list
+    newerer_list = priceList
     res = [eval(i) for i in newerer_list]
     Sum = sum(res)
     checkList.append(Sum)
     if len(checkList) > 2:
         checkList.pop(0)
 
-    if len(store_name) > 0 or len(newer_list) > 0:
+    if len(skinList) > 0 or len(priceList) > 0:
         global itemSound
         if itemSound == True and mac == 1:
             itemSound = False
@@ -458,24 +510,24 @@ def main():
         prices.clear()
         if count != 0:
             print('                                                                 ----- Different Skins, Rechecking -----')
-        for i in range(len(store_name)):
-            skinCheck(store_name[i])
+        for i in range(len(skinList)):
+            skinCheck(skinList[i])
         bundleFinder()
         for e in range(len(item_discount_price)):
-            if len(store_name) != len(newer_list):
+            if len(skinList) != len(priceList):
                 for i in range(len(bundleCount)):
                     if bundleCount[i] == 'Bundle':
-                        store_name.insert(i, bundleCount[i] + '                              ')
+                        skinList.insert(i, bundleCount[i] + '                              ')
                         prices.insert(i, 0.0000)
         printsStatement()
         reset()
     else:   #If store doesn't change
         bundleFinder()
         for e in range(len(item_discount_price)):
-            if len(store_name) != len(newer_list):
+            if len(skinList) != len(priceList):
                 for i in range(len(bundleCount)):
                     if bundleCount[i] == 'Bundle':
-                        store_name.insert(i, bundleCount[i] + '                              ')
+                        skinList.insert(i, bundleCount[i] + '                              ')
         printsStatement()
 
     if len(item_discount_price) != 0:
