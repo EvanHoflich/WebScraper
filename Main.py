@@ -19,15 +19,15 @@ from prettytable import PrettyTable
 badDealTable = PrettyTable()
 
 #------------------------Settings to change-----------------------
-autoBuyBool = False  #Turn this setting on so the bot will automatically purchase good deals
+autoBuyBool = True  #Turn this setting on so the bot will automatically purchase good deals
 autoBuyMax = 5   #Maxmimum item price the auto buyer will purchase
 autoDepositBool = False  #Turn on if you want system to auto deposit item - this takes control of mouse
 mac = 1             #What operating system I am using
 trackItem = False    #Turn on if I want to track item
 findLinkBool = True  #Turn on if finding link is having issues
 myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
-goodMultiplier = 2.6
-exchangeRate = 1.6347589
+goodMultiplier = 2.7
+exchangeRate = 1.6443222
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
@@ -132,14 +132,14 @@ def autoBuy(autoBuyIndex):
     if autoBuyIndex == 0:
         os.system('say "Purchasing item in first slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        time.sleep(1)  # Wait for browser to load
+        time.sleep(1.5)  # Wait for browser to load
         pyautogui.click(x=430, y=760, clicks=1, button='left')  # Click on skin
         time.sleep(0.05)
         pyautogui.click(x=410, y=760, clicks=1, button='left')  # Click on skin
     if autoBuyIndex == 1:
         os.system('say "Purchasing item in second slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        time.sleep(1.3)  # Wait for browser to load
+        time.sleep(1.5)  # Wait for browser to load
         pyautogui.click(x=600, y=760, clicks=1, button='left')  # Click on skin
         time.sleep(0.05)
         pyautogui.click(x=580, y=760, clicks=1, button='left')  # Click on skin
@@ -398,10 +398,10 @@ def printsStatement():
         else:
             statement.append(Fore.GREEN +'GOOD DEAL - ' + multiplier + 'x')
             global goodDeal
-            if mac == 1 and goodDeal == False:
+            if mac == 1 and goodDeal == False and float(priceList[e]) < float(autoBuyMax):
                 os.system('say "Good Deal Spotted"')
                 goodDeal = True
-                if autoBuyBool == True and float(priceList[e]) < float(autoBuyMax):
+                if autoBuyBool == True:
                     autoBuy(e)
         print(Style.RESET_ALL)
         if prices[e] == 0.0000 or prices[e] == '      No Suggested Price                ':
