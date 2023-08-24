@@ -445,7 +445,10 @@ def printsStatement():
             prices[e] = '      No Suggested Price                '
             print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(27), prices[e], statement[e])
         else:
-            print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ', new_link)
+            if skinList[e] == myItem:
+                print((Fore.GREEN + '(My item) ' + Style.RESET_ALL + str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(3), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]),'    ', statement[e], '       ', new_link)
+            else:
+                print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ', new_link)
         if skinList[e] not in goodDealTableSkin and 'Bundle' not in skinList[e]:
             goodDealTableSkin.append(skinList[e])
             goodDealTablePrice.append(multiplier)
@@ -477,7 +480,6 @@ def printsStatement():
             goneCount = goneCount + 1
             trackingCount = 0
             itemInStore = False
-            print('Item in store = ', itemInStore)
             if goneCount == 5 and itemInStore == False:  #Give four extra refresh to account for incorrect reading
                 os.system('say "Hooray, item sold!')
                 myItemBool = True
