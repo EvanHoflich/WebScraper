@@ -19,15 +19,15 @@ from prettytable import PrettyTable
 badDealTable = PrettyTable()
 
 #------------------------Settings to change-----------------------
-autoBuyBool = True  #Turn this setting on so the bot will automatically purchase good deals
+autoBuyBool = False  #Turn this setting on so the bot will automatically purchase good deals
 autoBuyMax = 5   #Maxmimum item price the auto buyer will purchase
-autoDepositBool = False  #Turn on if you want system to auto deposit item - this takes control of mouse
+autoDepositBool = True  #Turn on if you want system to auto deposit item - this takes control of mouse
+trackItem = True  # Turn on if I want to track item
 mac = 1             #What operating system I am using
-trackItem = False    #Turn on if I want to track item
 findLinkBool = True  #Turn on if finding link is having issues
-myItem = 'Five-SeveN | Case Hardened (Well-Worn)'
+myItem = 'Five-SeveN | Hyper Beast (Battle-Scarred)'
 goodMultiplier = 2.7
-exchangeRate = 1.6443222
+exchangeRate = 1.6761325
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
@@ -41,8 +41,11 @@ myItemBool = False
 goodDeal = False
 itemHasBeenInStore = False
 itemInStore = False
+cheapBundle = False
 #--------------------------------
 
+ua = UserAgent()
+service = Service()
 options = Options()
 
 if mac == 1:
@@ -53,6 +56,7 @@ if mac == 1:
     options.add_argument('disable-infobars')
     options.add_argument("--disable-extensions")
     options.add_experimental_option("detach", True)
+    options.add_argument("user-agent="+ua.random)
 else:
     #----------Dont Open A Browser (Windows)--------------
     options.add_argument("--headless") # Runs Chrome in headless mode.
@@ -62,11 +66,11 @@ else:
     options.add_argument('disable-infobars')
     options.add_argument("--disable-extensions")
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager(version='114.0.5735.90').install()), options=options)
-driver.set_window_position(970,0)
-ua = UserAgent()
-opts = Options()
-opts.add_argument("user-agent="+ua.random)
+driver = webdriver.Chrome(service=service, options=options)
+
+# driver = webdriver.Chrome(service=Service(ChromeDriverManager(version='114.0.5735.90').install()), options=options)
+# driver = webdriver.Chrome(service=Service('/Users/evanhoflich/PycharmProjects/pythonProject4/chromedriver'), options=options)
+# driver.set_window_position(970,0)
 
 #----------------Lists----------------
 myList = []
@@ -102,6 +106,14 @@ notInStoreCount = 0
 goodDealIndex = 0
 #--------------------------
 
+def returnToPyCharm():
+    pyautogui.keyDown('command')
+    pyautogui.keyDown('space')
+    pyautogui.keyUp('command')
+    pyautogui.keyUp('space')
+    pyautogui.write('pycharm')
+    pyautogui.press('enter')
+
 def reset():
     myList.clear()
     skinList.clear()
@@ -120,50 +132,71 @@ def autoDeposit():
     # os.system('say "Depositing Skin"')
     webbrowser.open_new('https://www.wtfskins.com/deposit/steam/p2p')
     time.sleep(4)  #Wait for browser to load
-    pyautogui.click(x=900, y=500, clicks=1, button='left')  # Click on skin
+    pyautogui.click(x=750, y=500, clicks=1, button='left')  # Click on skin
     time.sleep(0.2)
     pyautogui.click(x=1300, y=350, clicks=1, button='left')  # Click on discount box
     time.sleep(1)
-    pyautogui.click(x=1300, y=586, clicks=1, button='left')  # Choose 10% Discount
+    pyautogui.click(x=1300, y=585, clicks=1, button='left')  # Choose 10% Discount  y=585 for bottom,y=385 for top
     time.sleep(0.2)
     pyautogui.click(x=1417, y=357, clicks=1, button='left')  # Click 'Deposit'
+    returnToPyCharm()
 
 def autoBuy(autoBuyIndex):
     if autoBuyIndex == 0:
-        os.system('say "Purchasing item in first slot"')
+        #os.system('say "Purchasing item in first slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         time.sleep(1.5)  # Wait for browser to load
-        pyautogui.click(x=430, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(430, 760, 0.15)
+        pyautogui.click(button='left')
         time.sleep(0.05)
-        pyautogui.click(x=410, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(410,760, 0.15)
+        pyautogui.click(button='left')
+        time.sleep(1)
+        returnToPyCharm()
     if autoBuyIndex == 1:
-        os.system('say "Purchasing item in second slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         time.sleep(1.5)  # Wait for browser to load
-        pyautogui.click(x=600, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(600, 760, 0.15)  #Move to buy button
+        pyautogui.click(button='left')   #Click Buy button
         time.sleep(0.05)
-        pyautogui.click(x=580, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(580, 760, 0.15)  #Move to confirm button
+        pyautogui.click(button='left')   #Click confirm button
+        time.sleep(1)
+        os.system('say "Purchasing item in second slot"')
+        returnToPyCharm()
     if autoBuyIndex == 2:
-        os.system('say "Purchasing item in third slot"')
+        #os.system('say "Purchasing item in third slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         time.sleep(1.65)  # Wait for browser to load
-        pyautogui.click(x=770, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(770, 760, 0.15)
+        pyautogui.click(button='left')
         time.sleep(0.05)
-        pyautogui.click(x=750, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(750, 760, 0.15)
+        pyautogui.click(button='left')
+        time.sleep(1)
+        returnToPyCharm()
     if autoBuyIndex == 3:
         os.system('say "Purchasing item in Fourth slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         time.sleep(2)  # Wait for browser to load
-        pyautogui.click(x=940, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(940, 760, 0.15)
+        pyautogui.click(button='left')
         time.sleep(0.05)
-        pyautogui.click(x=920, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(920, 760, 0.15)
+        pyautogui.click(button='left')
+        time.sleep(1)
+        returnToPyCharm()
     if autoBuyIndex == 4:
         os.system('say "Purchasing item in Fifth slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         time.sleep(2.15)  # Wait for browser to load
-        pyautogui.click(x=1100, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(1100, 760, 0.15)
+        pyautogui.click(button='left')
         time.sleep(0.05)
-        pyautogui.click(x=1080, y=760, clicks=1, button='left')  # Click on skin
+        pyautogui.moveTo(1080, 760, 0.15)
+        pyautogui.click(button='left')
+        time.sleep(1)
+        returnToPyCharm()
     if autoBuyIndex == 5:
         os.system('say "Purchasing item in Sixth slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
@@ -171,6 +204,8 @@ def autoBuy(autoBuyIndex):
         pyautogui.click(x=1270, y=760, clicks=1, button='left')  # Click on skin
         time.sleep(0.05)
         pyautogui.click(x=1250, y=760, clicks=1, button='left')  # Click on skin
+        time.sleep(1)
+        returnToPyCharm()
     else:
         return
 
@@ -211,6 +246,7 @@ def steamMarketWorking():
         print(Style.RESET_ALL)
 
 def findLink(name):
+    global findLinkBool
     if findLinkBool == True:
         gunNameList.clear()
         skinNameList.clear()
@@ -288,6 +324,7 @@ def findLink(name):
             new_link = shortener.tinyurl.short(a)
         except requests.exceptions.Timeout:
             new_link = 'Unknown'
+            findLinkBool = False
     else:
         new_link = 'No Link :('
 
@@ -415,6 +452,13 @@ def printsStatement():
             badDealTableSkin.append(skinList[e])
             badDealTablePrice.append(multiplier)
 
+        global cheapBundle   #Notify me if there is a cheap bundle
+        if skinList[e] == 'Bundle                              ' and float(priceList[e]) <= cheapBundle and cheapBundle != True:
+            os.system('say "Cheap Bundle spoted"')
+            cheapBundle = True
+        if 'Bundle                              ' not in skinList:
+            cheapBundle = False
+
     global trackItem
     if trackItem == True:
         global myItemBool
@@ -423,11 +467,11 @@ def printsStatement():
         global itemHasBeenInStore
         global notInStoreCount
         print(Style.RESET_ALL)
-        if myItem not in skinList and autoDepositBool == True:   #Deposit Skin After 5 Refreshes of not being there
+        if myItem not in skinList and autoDepositBool == True:   #Deposit Skin After 2 Refreshes of not being there
             notInStoreCount = notInStoreCount + 1
-            if notInStoreCount <= 1:
-                print('                                                                    depositing item in', 1-notInStoreCount, 'refresh(s)')
-            if notInStoreCount == 1 and myItemBool == False:
+            if notInStoreCount <= 2:
+                print('                                                                    depositing item in', 2-notInStoreCount, 'refresh(s)')
+            if notInStoreCount == 2 and myItemBool == False:
                 autoDeposit()
         if myItem not in skinList and myItemBool == False and count != 0 and itemHasBeenInStore == True:
             goneCount = goneCount + 1
@@ -544,7 +588,7 @@ print('                                              ******************* Code St
 start = time.time()
 steamMarketWorking()
 driver.get("https://www.wtfskins.com/withdraw")
-time.sleep(0.5)
+time.sleep(0.25)
 main()
 print(Style.RESET_ALL)
 openBoxes()
@@ -553,7 +597,7 @@ def loop():
     for window in Windows:
         driver.switch_to.window(window)
         driver.refresh()
-        time.sleep(0.5)
+        time.sleep(0.25)
         main()
         print(Style.RESET_ALL)
         openBoxes()
