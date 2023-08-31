@@ -19,15 +19,15 @@ from prettytable import PrettyTable
 badDealTable = PrettyTable()
 
 #------------------------Settings to change-----------------------
-autoBuyBool = False  #Turn this setting on so the bot will automatically purchase good deals
-autoBuyMax = 5   #Maxmimum item price the auto buyer will purchase
-autoDepositBool = True  #Turn on if you want system to auto deposit item - this takes control of mouse
-trackItem = True  # Turn on if I want to track item
+autoBuyBool = True  #Turn this setting on so the bot will automatically purchase good deals
+balance = 42.71   #Maxmimum item price the auto buyer will purchase
+autoDepositBool = False  #Turn on if you want system to auto deposit item - this takes control of mouse
+trackItem = False  # Turn on if I want to track item
 mac = 1             #What operating system I am using
 findLinkBool = True  #Turn on if finding link is having issues
 myItem = 'Five-SeveN | Hyper Beast (Battle-Scarred)'
 goodMultiplier = 2.7
-exchangeRate = 1.6761325
+exchangeRate = 1.6922
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
@@ -131,7 +131,7 @@ def reset():
 def autoDeposit():
     # os.system('say "Depositing Skin"')
     webbrowser.open_new('https://www.wtfskins.com/deposit/steam/p2p')
-    time.sleep(4)  #Wait for browser to load
+    time.sleep(5.5)  #Wait for browser to load
     pyautogui.click(x=750, y=500, clicks=1, button='left')  # Click on skin
     time.sleep(0.2)
     pyautogui.click(x=1300, y=350, clicks=1, button='left')  # Click on discount box
@@ -145,7 +145,7 @@ def autoBuy(autoBuyIndex):
     if autoBuyIndex == 0:
         #os.system('say "Purchasing item in first slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        time.sleep(1.5)  # Wait for browser to load
+        time.sleep(2.5)  # Wait for browser to load
         pyautogui.moveTo(430, 760, 0.15)
         pyautogui.click(button='left')
         time.sleep(0.05)
@@ -155,7 +155,7 @@ def autoBuy(autoBuyIndex):
         returnToPyCharm()
     if autoBuyIndex == 1:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        time.sleep(1.5)  # Wait for browser to load
+        time.sleep(2.5)  # Wait for browser to load
         pyautogui.moveTo(600, 760, 0.15)  #Move to buy button
         pyautogui.click(button='left')   #Click Buy button
         time.sleep(0.05)
@@ -167,7 +167,7 @@ def autoBuy(autoBuyIndex):
     if autoBuyIndex == 2:
         #os.system('say "Purchasing item in third slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        time.sleep(1.65)  # Wait for browser to load
+        time.sleep(2.65)  # Wait for browser to load
         pyautogui.moveTo(770, 760, 0.15)
         pyautogui.click(button='left')
         time.sleep(0.05)
@@ -178,7 +178,7 @@ def autoBuy(autoBuyIndex):
     if autoBuyIndex == 3:
         os.system('say "Purchasing item in Fourth slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        time.sleep(2)  # Wait for browser to load
+        time.sleep(3)  # Wait for browser to load
         pyautogui.moveTo(940, 760, 0.15)
         pyautogui.click(button='left')
         time.sleep(0.05)
@@ -189,7 +189,7 @@ def autoBuy(autoBuyIndex):
     if autoBuyIndex == 4:
         os.system('say "Purchasing item in Fifth slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        time.sleep(2.15)  # Wait for browser to load
+        time.sleep(3.15)  # Wait for browser to load
         pyautogui.moveTo(1100, 760, 0.15)
         pyautogui.click(button='left')
         time.sleep(0.05)
@@ -200,11 +200,11 @@ def autoBuy(autoBuyIndex):
     if autoBuyIndex == 5:
         os.system('say "Purchasing item in Sixth slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        time.sleep(2.3)  # Wait for browser to load
+        time.sleep(3.3)  # Wait for browser to load
         pyautogui.click(x=1270, y=760, clicks=1, button='left')  # Click on skin
         time.sleep(0.05)
         pyautogui.click(x=1250, y=760, clicks=1, button='left')  # Click on skin
-        time.sleep(1)
+        time.sleep(2.5)
         returnToPyCharm()
     else:
         return
@@ -435,7 +435,7 @@ def printsStatement():
         else:
             statement.append(Fore.GREEN +'GOOD DEAL - ' + multiplier + 'x')
             global goodDeal
-            if mac == 1 and goodDeal == False and float(priceList[e]) < float(autoBuyMax):
+            if mac == 1 and goodDeal == False and float(priceList[e]) < float(balance):
                 os.system('say "Good Deal Spotted"')
                 goodDeal = True
                 if autoBuyBool == True:
@@ -590,7 +590,7 @@ print('                                              ******************* Code St
 start = time.time()
 steamMarketWorking()
 driver.get("https://www.wtfskins.com/withdraw")
-time.sleep(0.25)
+time.sleep(0.5)
 main()
 print(Style.RESET_ALL)
 openBoxes()
@@ -599,7 +599,7 @@ def loop():
     for window in Windows:
         driver.switch_to.window(window)
         driver.refresh()
-        time.sleep(0.25)
+        time.sleep(0.5)
         main()
         print(Style.RESET_ALL)
         openBoxes()
