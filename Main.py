@@ -16,24 +16,26 @@ from selenium.common.exceptions import NoSuchElementException
 import webbrowser
 import pyautogui
 from prettytable import PrettyTable
+import re
+import shutil
 import numpy as np
 badDealTable = PrettyTable()
 
 #------------------------Settings to change-----------------------
 goodMultiplier = 2.6
-autoBuyBool = True  #Turn this setting on so the bot will automatically purchase good deals
-balance = 7.11   #Maxmimum item price the auto buyer will purchase
+balance = 0.05   #Maxmimum item price the auto buyer will purchase
+exchangeRate = 1.6811571
+summaryFrequency = 5  #Once every 5 refreshes
+autoBuyBool = False  #Turn this setting on so the bot will automatically purchase good deals
 autoDepositBool = False  #Turn on if you want system to auto deposit item - this takes control of mouse
-trackItem = False  # Turn on if I want to track item
-mac = 1             #What operating system I am using
 findLinkBool = True  #Turn on if finding link is having issues
 myItem = 'Five-SeveN | Hyper Beast (Battle-Scarred)'
-exchangeRate = 1.6811571
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
 Sum = 0
 store_not_empty = 0
+mac = 1             #What operating system I am using
 empty = True
 bundles = False
 bundleMismatch = False
@@ -43,6 +45,10 @@ goodDeal = False
 itemHasBeenInStore = False
 itemInStore = False
 cheapBundle = False
+if autoDepositBool == True:
+    trackItem = False  # Turn on if I want to track item
+else:
+    trackItem = True  # Turn on if I want to track item
 #--------------------------------
 
 ua = UserAgent()
@@ -98,6 +104,7 @@ badDealTablePrice = []
 DealTableSkinLog = []
 DealTablePriceLog = []
 checkList = [0, 0]
+checkListData = [0,0]
 #--------------------------------------
 
 #---------Counts-----------
@@ -112,13 +119,31 @@ goodDealIndex = 0
 def loggedData():
     global DealTableSkinLog
     global DealTablePriceLog
-    print('                                                                          Loading Logged Data!')
+
+    # print('                                                                          Loading Logged Data!')
     #Removing the # and numbers from the list, otherwise it screws it up
     with open("data.txt", "r") as input_file, open("temp.txt", "w") as output_file:
         for line in input_file:
-            modified_line = line.split(maxsplit=1)[1].strip()
+            modified_line = re.sub(r'#\d+\s*', '', line).strip()
             output_file.write(modified_line + "\n")
-    import shutil
+    shutil.move("temp.txt", "data.txt")
+
+    with open("data.txt", "r") as input_file, open("temp.txt", "w") as output_file:
+        lines = input_file.readlines()
+        if lines:
+            output_file.write(lines[0])  # Keep the first line as is
+        if len(lines) == 0:
+            print('Loaded empty txt file')
+        if len(lines) > 0:
+            print('                                                                    Successfully loaded', len(lines), ' line(s)')
+
+        for line in lines[1:]:
+            if line.strip():  # Check if the line is not empty
+                modified_line = line[:-1]  # Remove the last character
+                output_file.write(modified_line + "\n")
+            else:
+                output_file.write("\n")  # If the line is empty, write a newline character
+
     shutil.move("temp.txt", "data.txt")
 
     with open('data.txt', 'r') as file:
@@ -179,6 +204,13 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
     largest_4_data_log = sorted_data_largest_log[:]
     smallest_names_log, smallest_numbers_log = zip(*smallest_4_data_log)
     largest_names_log, largest_numbers_log = zip(*largest_4_data_log)
+
+    checkListData.append(len(smallest_names_log))
+    if len(checkListData) > 2:
+        checkListData.pop(0)
+
+    if checkListData[0] != checkListData[1] and checkListData[0] != 0:
+        print(Fore.GREEN + '                                                        Added', checkListData[1]-checkListData[0], ' new items to data.txt!')
 
     # print('Smallest names: ', smallest_names_log)
     # print('Smallest Numbers: ', smallest_numbers_log)
@@ -271,7 +303,6 @@ def autoBuy(autoBuyIndex):
 def filterList(numbers, names):
     if not numbers or not names:
         print(Fore.YELLOW,"                                                                          No Store History" + Style.RESET_ALL,)
-        saveData(DealTableSkinLog, DealTablePriceLog)
         return [], []
     zipped_data = list(zip(numbers, names))
     sorted_data_smallest = sorted(zipped_data, key=lambda x: x[0])
@@ -280,7 +311,7 @@ def filterList(numbers, names):
     largest_4_data = sorted_data_largest[:4]
     smallest_numbers, smallest_names = zip(*smallest_4_data)
     largest_numbers, largest_names = zip(*largest_4_data)
-    print('[Skin History Summary - Evaluating ',Fore.GREEN + str(len(numbers)) + Style.RESET_ALL, 'Unique Skin(s)]')
+    print('[This Code Run Skin History Summary - Evaluating',Fore.GREEN + str(len(numbers)) + Style.RESET_ALL, 'Unique Skin(s)]')
     badDealTable.field_names = ['Num', Fore.RED + "Bad Skins" + Style.RESET_ALL,Fore.RED + "Multiplier" + Style.RESET_ALL," ", "Num.", Fore.GREEN + "Good Skins" + Style.RESET_ALL,Fore.GREEN + "Multiplier" + Style.RESET_ALL]
     if len(numbers) == 1:
         badDealTable.add_row(["1. (Worst)", smallest_names[0], smallest_numbers[0] + 'x'," ","1. (Best)", largest_names[0], largest_numbers[0] + 'x'])
@@ -291,11 +322,24 @@ def filterList(numbers, names):
         badDealTable.add_row(["1. (Worst)", smallest_names[0], smallest_numbers[0] + 'x'," ", "1. (Best)", largest_names[0], largest_numbers[0] + 'x'])
         badDealTable.add_row(["2.", smallest_names[1], smallest_numbers[1] + 'x'," ", "2.", largest_names[1], largest_numbers[1] + 'x'])
         badDealTable.add_row(["3.", smallest_names[2], smallest_numbers[2] + 'x'," ", "3.", largest_names[2], largest_numbers[2] + 'x'])
-    summedSkinArray = DealTableSkinLog + list(smallest_names)
-    summedPriceArray = DealTablePriceLog + list(smallest_numbers)
-    saveData(summedSkinArray, summedPriceArray)
     print(badDealTable)
     badDealTable.clear()
+
+def autoDataLog(numbers, names):
+    if not numbers or not names:
+        saveData(DealTableSkinLog, DealTablePriceLog)
+        return [], []
+    dataZipped = list(zip(numbers, names))
+    smallestDataSorted = sorted(dataZipped, key=lambda x: x[0])
+    largestDataSorted = sorted(dataZipped, key=lambda x: x[0], reverse=True)
+    smallestFourData = smallestDataSorted[:]
+    largestFourData = largestDataSorted[:]
+    smallNums, smallNames = zip(*smallestFourData)
+    largestNums, largestNames = zip(*largestFourData)
+    arraySummedName = DealTableSkinLog + list(smallNames)
+    arraySummedPrice = DealTablePriceLog + list(smallNums)
+    saveData(arraySummedName, arraySummedPrice)
+
 
 def steamMarketWorking():
     item = sm.get_csgo_item('AK-47 | Frontside Misty (Field-Tested)', currency='USD')
@@ -596,10 +640,12 @@ def main():
           '     |   Items in store =', len(size_list), '                                           |')
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
-    if count % 1000 == 0 and count != 0:  # Every 100 check to ensure steam market is working
+    if count % 100 == 0 and count != 0:  # Every 100 check to ensure steam market is working
         steamMarketWorking()
-    if count % 2 == 0 and count != 0:
+    if count % summaryFrequency == 0 and count != 0: #This runs the summary table
         filterList(badDealTablePrice, badDealTableSkin)
+    if count % 1 == 0:  #This runs the auto data log
+        autoDataLog(badDealTablePrice, badDealTableSkin)
 
     newerer_list = priceList
     res = [eval(i) for i in newerer_list]
