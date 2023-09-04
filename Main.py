@@ -16,18 +16,19 @@ from selenium.common.exceptions import NoSuchElementException
 import webbrowser
 import pyautogui
 from prettytable import PrettyTable
+import numpy as np
 badDealTable = PrettyTable()
 
 #------------------------Settings to change-----------------------
+goodMultiplier = 2.6
 autoBuyBool = True  #Turn this setting on so the bot will automatically purchase good deals
-balance = 42.71   #Maxmimum item price the auto buyer will purchase
+balance = 7.11   #Maxmimum item price the auto buyer will purchase
 autoDepositBool = False  #Turn on if you want system to auto deposit item - this takes control of mouse
 trackItem = False  # Turn on if I want to track item
 mac = 1             #What operating system I am using
 findLinkBool = True  #Turn on if finding link is having issues
 myItem = 'Five-SeveN | Hyper Beast (Battle-Scarred)'
-goodMultiplier = 2.7
-exchangeRate = 1.6922
+exchangeRate = 1.6811571
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
@@ -94,6 +95,8 @@ goodDealTableSkin = []
 goodDealTablePrice = []
 badDealTableSkin = []
 badDealTablePrice = []
+DealTableSkinLog = []
+DealTablePriceLog = []
 checkList = [0, 0]
 #--------------------------------------
 
@@ -105,6 +108,29 @@ trackingCount = 0
 notInStoreCount = 0
 goodDealIndex = 0
 #--------------------------
+
+def loggedData():
+    global DealTableSkinLog
+    global DealTablePriceLog
+    print('                                                                          Loading Logged Data!')
+    #Removing the # and numbers from the list, otherwise it screws it up
+    with open("data.txt", "r") as input_file, open("temp.txt", "w") as output_file:
+        for line in input_file:
+            modified_line = line.split(maxsplit=1)[1].strip()
+            output_file.write(modified_line + "\n")
+    import shutil
+    shutil.move("temp.txt", "data.txt")
+
+    with open('data.txt', 'r') as file:
+        for line in file:
+            parts = line.strip().split('@')
+
+            if len(parts) >= 2:
+                skin = parts[0].strip()
+                price_str = parts[1].strip()
+                DealTableSkinLog.append(skin)
+                DealTablePriceLog.append(float(price_str))
+
 
 def returnToPyCharm():
     pyautogui.keyDown('command')
@@ -140,6 +166,39 @@ def autoDeposit():
     time.sleep(0.2)
     pyautogui.click(x=1417, y=357, clicks=1, button='left')  # Click 'Deposit'
     returnToPyCharm()
+
+def saveData(DealTableSkinLogD, DealTablePriceLogD):
+    # print('Skin: ', DealTableSkinLogD)
+    # print('Price: ', DealTablePriceLogD)
+    file_to_delete = open("data.txt", 'w')
+    float_list = [float(x) if isinstance(x, (int, float, str)) else x for x in DealTablePriceLogD]
+    zipped_data_log = list(zip(DealTableSkinLogD, float_list))
+    sorted_data_smallest_log = sorted(zipped_data_log, key=lambda x: x[1])
+    sorted_data_largest_log = sorted(zipped_data_log, key=lambda x: x[1], reverse=True)
+    smallest_4_data_log = sorted_data_smallest_log[:]
+    largest_4_data_log = sorted_data_largest_log[:]
+    smallest_names_log, smallest_numbers_log = zip(*smallest_4_data_log)
+    largest_names_log, largest_numbers_log = zip(*largest_4_data_log)
+
+    # print('Smallest names: ', smallest_names_log)
+    # print('Smallest Numbers: ', smallest_numbers_log)
+
+    #Clean the data to remove doubleups
+    unique_data = {}
+    for name, price in zip(smallest_names_log, smallest_numbers_log):
+        if name not in unique_data:
+            unique_data[name] = price
+    unique_names_log = list(unique_data.keys())
+    unique_numbers_log = list(unique_data.values())
+
+    # print('Unique Names: ', unique_names_log)
+    # print('Unique Numbers: ', unique_numbers_log)
+
+    #Write the new data to data.txt file
+    combined_data = [f"#{i+1} {skin}   @{price}" for i, (skin, price) in enumerate(zip(unique_names_log, unique_numbers_log))]
+    with open("data.txt", "w") as file:
+        file.write('                 -----Descending Order For Skin Values-----\n')
+        file.write('\n'.join(combined_data))
 
 def autoBuy(autoBuyIndex):
     if autoBuyIndex == 0:
@@ -209,18 +268,18 @@ def autoBuy(autoBuyIndex):
     else:
         return
 
-
 def filterList(numbers, names):
     if not numbers or not names:
         print(Fore.YELLOW,"                                                                          No Store History" + Style.RESET_ALL,)
-        return [], [], [], []
+        saveData(DealTableSkinLog, DealTablePriceLog)
+        return [], []
     zipped_data = list(zip(numbers, names))
     sorted_data_smallest = sorted(zipped_data, key=lambda x: x[0])
     sorted_data_largest = sorted(zipped_data, key=lambda x: x[0], reverse=True)
-    smallest_3_data = sorted_data_smallest[:3]
-    largest_3_data = sorted_data_largest[:3]
-    smallest_numbers, smallest_names = zip(*smallest_3_data)
-    largest_numbers, largest_names = zip(*largest_3_data)
+    smallest_4_data = sorted_data_smallest[:4]
+    largest_4_data = sorted_data_largest[:4]
+    smallest_numbers, smallest_names = zip(*smallest_4_data)
+    largest_numbers, largest_names = zip(*largest_4_data)
     print('[Skin History Summary - Evaluating ',Fore.GREEN + str(len(numbers)) + Style.RESET_ALL, 'Unique Skin(s)]')
     badDealTable.field_names = ['Num', Fore.RED + "Bad Skins" + Style.RESET_ALL,Fore.RED + "Multiplier" + Style.RESET_ALL," ", "Num.", Fore.GREEN + "Good Skins" + Style.RESET_ALL,Fore.GREEN + "Multiplier" + Style.RESET_ALL]
     if len(numbers) == 1:
@@ -232,6 +291,9 @@ def filterList(numbers, names):
         badDealTable.add_row(["1. (Worst)", smallest_names[0], smallest_numbers[0] + 'x'," ", "1. (Best)", largest_names[0], largest_numbers[0] + 'x'])
         badDealTable.add_row(["2.", smallest_names[1], smallest_numbers[1] + 'x'," ", "2.", largest_names[1], largest_numbers[1] + 'x'])
         badDealTable.add_row(["3.", smallest_names[2], smallest_numbers[2] + 'x'," ", "3.", largest_names[2], largest_numbers[2] + 'x'])
+    summedSkinArray = DealTableSkinLog + list(smallest_names)
+    summedPriceArray = DealTablePriceLog + list(smallest_numbers)
+    saveData(summedSkinArray, summedPriceArray)
     print(badDealTable)
     badDealTable.clear()
 
@@ -419,7 +481,7 @@ def skinCheck(name):
     USDPrice = myList[1][1:]
     USDPrice = USDPrice.replace(",", "")
     NZDPrice = Decimal(USDPrice) * Decimal(exchangeRate)
-    prices.append(NZDPrice) #To Calculate total
+    prices.append(NZDPrice)  #To Calculate total
     myList.clear()
 
 def printsStatement():
@@ -448,7 +510,7 @@ def printsStatement():
             if skinList[e] == myItem:
                 print((Fore.GREEN + '(My item) ' + Style.RESET_ALL + str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(3), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]),'    ', statement[e], '       ', new_link)
             else:
-                print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(54), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ', new_link)
+                print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(58), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ', new_link)
         if skinList[e] not in goodDealTableSkin and 'Bundle' not in skinList[e]:
             goodDealTableSkin.append(skinList[e])
             goodDealTablePrice.append(multiplier)
@@ -536,7 +598,7 @@ def main():
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
     if count % 1000 == 0 and count != 0:  # Every 100 check to ensure steam market is working
         steamMarketWorking()
-    if count % 10 == 0 and count != 0:
+    if count % 2 == 0 and count != 0:
         filterList(badDealTablePrice, badDealTableSkin)
 
     newerer_list = priceList
@@ -586,9 +648,10 @@ def main():
         empty = True
         return empty
 
-print('                                              ******************* Code Starting - Code By Evan Holfich *******************')
+print('                                              ******************* Starting...... - Code By Evan Holfich *******************')
 start = time.time()
 steamMarketWorking()
+loggedData()
 driver.get("https://www.wtfskins.com/withdraw")
 time.sleep(0.5)
 main()
