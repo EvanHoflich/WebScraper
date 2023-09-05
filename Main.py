@@ -17,6 +17,7 @@ import webbrowser
 import pyautogui
 from prettytable import PrettyTable
 import re
+from num2words import num2words
 import shutil
 import numpy as np
 badDealTable = PrettyTable()
@@ -27,9 +28,9 @@ balance = 0.05   #Maxmimum item price the auto buyer will purchase
 exchangeRate = 1.6811571
 summaryFrequency = 5  #Once every 5 refreshes
 autoBuyBool = False  #Turn this setting on so the bot will automatically purchase good deals
-autoDepositBool = False  #Turn on if you want system to auto deposit item - this takes control of mouse
+autoDepositBool = True  #Turn on if you want system to auto deposit item - this takes control of mouse
 findLinkBool = True  #Turn on if finding link is having issues
-myItem = 'Five-SeveN | Hyper Beast (Battle-Scarred)'
+myItem = ['★ Survival Knife | Boreal Forest (Field-Tested)']
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
@@ -46,9 +47,9 @@ itemHasBeenInStore = False
 itemInStore = False
 cheapBundle = False
 if autoDepositBool == True:
-    trackItem = False  # Turn on if I want to track item
-else:
     trackItem = True  # Turn on if I want to track item
+else:
+    trackItem = False  # Turn on if I want to track item
 #--------------------------------
 
 ua = UserAgent()
@@ -135,7 +136,7 @@ def loggedData():
         if len(lines) == 0:
             print('Loaded empty txt file')
         if len(lines) > 0:
-            print('                                                                    Successfully loaded', len(lines), ' line(s)')
+            print('                                                              <- Successfully loaded', len(lines)-1, 'line(s) of data ->')
 
         for line in lines[1:]:
             if line.strip():  # Check if the line is not empty
@@ -183,7 +184,7 @@ def autoDeposit():
     # os.system('say "Depositing Skin"')
     webbrowser.open_new('https://www.wtfskins.com/deposit/steam/p2p')
     time.sleep(5.5)  #Wait for browser to load
-    pyautogui.click(x=750, y=500, clicks=1, button='left')  # Click on skin
+    pyautogui.click(x=420, y=500, clicks=1, button='left')  # Click on skin
     time.sleep(0.2)
     pyautogui.click(x=1300, y=350, clicks=1, button='left')  # Click on discount box
     time.sleep(1)
@@ -193,8 +194,8 @@ def autoDeposit():
     returnToPyCharm()
 
 def saveData(DealTableSkinLogD, DealTablePriceLogD):
-    # print('Skin: ', DealTableSkinLogD)
-    # print('Price: ', DealTablePriceLogD)
+    print('Skin: ', DealTableSkinLogD)
+    print('Price: ', DealTablePriceLogD)
     file_to_delete = open("data.txt", 'w')
     float_list = [float(x) if isinstance(x, (int, float, str)) else x for x in DealTablePriceLogD]
     zipped_data_log = list(zip(DealTableSkinLogD, float_list))
@@ -210,10 +211,10 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
         checkListData.pop(0)
 
     if checkListData[0] != checkListData[1] and checkListData[0] != 0:
-        print(Fore.GREEN + '                                                        Added', checkListData[1]-checkListData[0], ' new items to data.txt!')
+        print(Fore.GREEN + '                                                                   Added', num2words(checkListData[1]-checkListData[0]), 'new item(s) to data.txt!')
 
-    # print('Smallest names: ', smallest_names_log)
-    # print('Smallest Numbers: ', smallest_numbers_log)
+    print('Smallest names: ', smallest_names_log)
+    print('Smallest Numbers: ', smallest_numbers_log)
 
     #Clean the data to remove doubleups
     unique_data = {}
@@ -223,8 +224,8 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
     unique_names_log = list(unique_data.keys())
     unique_numbers_log = list(unique_data.values())
 
-    # print('Unique Names: ', unique_names_log)
-    # print('Unique Numbers: ', unique_numbers_log)
+    print('Unique Names: ', unique_names_log)
+    print('Unique Numbers: ', unique_numbers_log)
 
     #Write the new data to data.txt file
     combined_data = [f"#{i+1} {skin}   @{price}" for i, (skin, price) in enumerate(zip(unique_names_log, unique_numbers_log))]
@@ -326,6 +327,8 @@ def filterList(numbers, names):
     badDealTable.clear()
 
 def autoDataLog(numbers, names):
+    print('Numbers: ', numbers)
+    print('Names: ', names)
     if not numbers or not names:
         saveData(DealTableSkinLog, DealTablePriceLog)
         return [], []
@@ -338,6 +341,8 @@ def autoDataLog(numbers, names):
     largestNums, largestNames = zip(*largestFourData)
     arraySummedName = DealTableSkinLog + list(smallNames)
     arraySummedPrice = DealTablePriceLog + list(smallNums)
+    print('Array Summed Names', arraySummedName)
+    print('Array Summed Price', arraySummedPrice)
     saveData(arraySummedName, arraySummedPrice)
 
 
@@ -551,10 +556,11 @@ def printsStatement():
             prices[e] = '      No Suggested Price                '
             print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(27), prices[e], statement[e])
         else:
-            if skinList[e] == myItem:
-                print((Fore.GREEN + '(My item) ' + Style.RESET_ALL + str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(3), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]),'    ', statement[e], '       ', new_link)
-            else:
-                print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(58), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ', new_link)
+            for t in range(len(myItem)):
+                if skinList[e] == myItem[t]:
+                    print((Fore.GREEN + '(My item) ' + Style.RESET_ALL + str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(3), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]),'    ', statement[e], '       ', new_link)
+                else:
+                    print((str(skinList[e]) + '\t' + 'Site Price: $' + priceList[e]).expandtabs(58), '     Suggested Steam Price: $', "{:.2f}".format(prices[e]), '    ', statement[e], '       ', new_link)
         if skinList[e] not in goodDealTableSkin and 'Bundle' not in skinList[e]:
             goodDealTableSkin.append(skinList[e])
             goodDealTablePrice.append(multiplier)
@@ -576,25 +582,26 @@ def printsStatement():
         global itemHasBeenInStore
         global notInStoreCount
         print(Style.RESET_ALL)
-        if myItem not in skinList and autoDepositBool == True:   #Deposit Skin After 2 Refreshes of not being there
-            notInStoreCount = notInStoreCount + 1
-            if notInStoreCount <= 2:
-                print('                                                                    depositing item in', 2-notInStoreCount, 'refresh(s)')
-            if notInStoreCount == 2 and myItemBool == False:
-                autoDeposit()
-        if myItem not in skinList and myItemBool == False and count != 0 and itemHasBeenInStore == True:
-            goneCount = goneCount + 1
-            trackingCount = 0
-            itemInStore = False
-            if goneCount == 5 and itemInStore == False:  #Give four extra refresh to account for incorrect reading
-                os.system('say "Hooray, item sold!')
-                myItemBool = True
-        if myItem in skinList:
-            itemHasBeenInStore = True
-            myItemBool = False
-            trackingCount = trackingCount + 1
-            goneCount = 0
-            notInStoreCount = 0
+        for y in range(len(myItem)):
+            if myItem[y] not in skinList and autoDepositBool == True:   #Deposit Skin After 2 Refreshes of not being there
+                notInStoreCount = notInStoreCount + 1
+                if notInStoreCount <= 2:
+                    print('                                                                    depositing item in', 2-notInStoreCount, 'refresh(s)')
+                if notInStoreCount == 2 and myItemBool == False:
+                    autoDeposit()
+            if myItem[y] not in skinList and myItemBool == False and count != 0 and itemHasBeenInStore == True:
+                goneCount = goneCount + 1
+                trackingCount = 0
+                itemInStore = False
+                if goneCount == 5 and itemInStore == False:  #Give four extra refresh to account for incorrect reading
+                    os.system('say "Hooray, item sold!')
+                    myItemBool = True
+            if myItem[y] in skinList:
+                itemHasBeenInStore = True
+                myItemBool = False
+                trackingCount = trackingCount + 1
+                goneCount = 0
+                notInStoreCount = 0
 
     if 'GOOD DEAL' not in str(statement):
         goodDeal = False
@@ -664,7 +671,7 @@ def main():
 
     if checkList[0] != checkList[1]:
         prices.clear()
-        if count != 0:
+        if count != 0 and checkList[1] > checkList[0]:
             print('                                                                 ----- Different Skins, Rechecking -----')
         for i in range(len(skinList)):
             skinCheck(skinList[i])
