@@ -30,7 +30,8 @@ summaryFrequency = 5  #Once every 5 refreshes
 autoBuyBool = False  #Turn this setting on so the bot will automatically purchase good deals
 autoDepositBool = True  #Turn on if you want system to auto deposit item - this takes control of mouse
 findLinkBool = True  #Turn on if finding link is having issues
-myItem = ['★ Survival Knife | Boreal Forest (Field-Tested)']
+myItem = ['Sir Bloody Skullhead Darryl | The Professionals']
+slot = 5
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
@@ -50,6 +51,7 @@ if autoDepositBool == True:
     trackItem = True  # Turn on if I want to track item
 else:
     trackItem = False  # Turn on if I want to track item
+position = 320 + (140*slot)
 #--------------------------------
 
 ua = UserAgent()
@@ -133,7 +135,7 @@ def loggedData():
         lines = input_file.readlines()
         if lines:
             output_file.write(lines[0])  # Keep the first line as is
-        if len(lines) == 0:
+        if len(lines) == 0 and count < 2:
             print('Loaded empty txt file')
         if len(lines) > 0:
             print('                                                              <- Successfully loaded', len(lines)-1, 'line(s) of data ->')
@@ -146,6 +148,9 @@ def loggedData():
                 output_file.write("\n")  # If the line is empty, write a newline character
 
     shutil.move("temp.txt", "data.txt")
+
+    DealTableSkinLog.clear()
+    DealTablePriceLog.clear()
 
     with open('data.txt', 'r') as file:
         for line in file:
@@ -180,11 +185,11 @@ def reset():
     second_list.clear()
     statement.clear()
 
-def autoDeposit():
-    # os.system('say "Depositing Skin"')
+def autoDeposit(depositItem):
+    os.system(f'say "Depositing {depositItem}"')
     webbrowser.open_new('https://www.wtfskins.com/deposit/steam/p2p')
     time.sleep(5.5)  #Wait for browser to load
-    pyautogui.click(x=420, y=500, clicks=1, button='left')  # Click on skin
+    pyautogui.click(x=position, y=500, clicks=1, button='left')  # Click on skin
     time.sleep(0.2)
     pyautogui.click(x=1300, y=350, clicks=1, button='left')  # Click on discount box
     time.sleep(1)
@@ -194,8 +199,8 @@ def autoDeposit():
     returnToPyCharm()
 
 def saveData(DealTableSkinLogD, DealTablePriceLogD):
-    print('Skin: ', DealTableSkinLogD)
-    print('Price: ', DealTablePriceLogD)
+    # print('Skin: ', DealTableSkinLogD)
+    # print('Price: ', DealTablePriceLogD)
     file_to_delete = open("data.txt", 'w')
     float_list = [float(x) if isinstance(x, (int, float, str)) else x for x in DealTablePriceLogD]
     zipped_data_log = list(zip(DealTableSkinLogD, float_list))
@@ -213,8 +218,8 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
     if checkListData[0] != checkListData[1] and checkListData[0] != 0:
         print(Fore.GREEN + '                                                                   Added', num2words(checkListData[1]-checkListData[0]), 'new item(s) to data.txt!')
 
-    print('Smallest names: ', smallest_names_log)
-    print('Smallest Numbers: ', smallest_numbers_log)
+    # print('Smallest names: ', smallest_names_log)
+    # print('Smallest Numbers: ', smallest_numbers_log)
 
     #Clean the data to remove doubleups
     unique_data = {}
@@ -224,8 +229,8 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
     unique_names_log = list(unique_data.keys())
     unique_numbers_log = list(unique_data.values())
 
-    print('Unique Names: ', unique_names_log)
-    print('Unique Numbers: ', unique_numbers_log)
+    # print('Unique Names: ', unique_names_log)
+    # print('Unique Numbers: ', unique_numbers_log)
 
     #Write the new data to data.txt file
     combined_data = [f"#{i+1} {skin}   @{price}" for i, (skin, price) in enumerate(zip(unique_names_log, unique_numbers_log))]
@@ -327,8 +332,8 @@ def filterList(numbers, names):
     badDealTable.clear()
 
 def autoDataLog(numbers, names):
-    print('Numbers: ', numbers)
-    print('Names: ', names)
+    # print('Numbers: ', numbers)
+    # print('Names: ', names)
     if not numbers or not names:
         saveData(DealTableSkinLog, DealTablePriceLog)
         return [], []
@@ -341,16 +346,15 @@ def autoDataLog(numbers, names):
     largestNums, largestNames = zip(*largestFourData)
     arraySummedName = DealTableSkinLog + list(smallNames)
     arraySummedPrice = DealTablePriceLog + list(smallNums)
-    print('Array Summed Names', arraySummedName)
-    print('Array Summed Price', arraySummedPrice)
+    # print('Array Summed Names', arraySummedName)
+    # print('Array Summed Price', arraySummedPrice)
     saveData(arraySummedName, arraySummedPrice)
 
 
 def steamMarketWorking():
     item = sm.get_csgo_item('AK-47 | Frontside Misty (Field-Tested)', currency='USD')
     if item is None:
-        print(Fore.RED + "                                                             -----Steam Market Library Currently Down-----")
-        print(Style.RESET_ALL)
+        print(Fore.RED + "                                                             -----Steam Market Library Currently Down-----" + Style.RESET_ALL)
         main()
     else:
         print(Fore.GREEN + "                                                               -----Steam Market Working As Expected-----")
@@ -588,7 +592,7 @@ def printsStatement():
                 if notInStoreCount <= 2:
                     print('                                                                    depositing item in', 2-notInStoreCount, 'refresh(s)')
                 if notInStoreCount == 2 and myItemBool == False:
-                    autoDeposit()
+                    autoDeposit(myItem[y])
             if myItem[y] not in skinList and myItemBool == False and count != 0 and itemHasBeenInStore == True:
                 goneCount = goneCount + 1
                 trackingCount = 0
@@ -653,6 +657,8 @@ def main():
         filterList(badDealTablePrice, badDealTableSkin)
     if count % 1 == 0:  #This runs the auto data log
         autoDataLog(badDealTablePrice, badDealTableSkin)
+    if count % 100 == 0 and count != 0 and count != 1:
+        loggedData()
 
     newerer_list = priceList
     res = [eval(i) for i in newerer_list]
