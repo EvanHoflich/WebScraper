@@ -25,7 +25,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 #------------------------Settings to change-----------------------
-goodMultiplier = 2.68
+goodMultiplier = 2.6
 balance = 6.62   #Maxmimum item price the auto buyer will purchase
 exchangeRate = 1.6997828
 summaryFrequency = 5  #Once every 5 refreshes
@@ -246,80 +246,80 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
 def autoBuy(autoBuyIndex):
     if autoBuyIndex == 0:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.1).until(EC.presence_of_element_located((By.TAG_NAME, "html")))  #Wait for the page to load
+        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))  #Wait for the page to load
         pyautogui.moveTo(430, 760, 0.2)
         time.sleep(0.1)
         pyautogui.click(button='left')
         time.sleep(0.1)
         pyautogui.moveTo(410,760, 0.2)
         pyautogui.click(button='left')
-        time.sleep(3)
+        time.sleep(5)
         if audio == True:
             os.system('say "Purchasing item in first slot"')
         returnToPyCharm()
     if autoBuyIndex == 1:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.1).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
         pyautogui.moveTo(600, 760, 0.2)  #Move to buy button
-        time.sleep(0.1)
+        time.sleep(0.5)
         pyautogui.click(button='left')   #Click Buy button
         time.sleep(0.1)
         pyautogui.moveTo(580, 760, 0.2)  #Move to confirm button
         pyautogui.click(button='left')   #Click confirm button
-        time.sleep(3)
+        time.sleep(5)
         if audio == True:
             os.system('say "Purchasing item in second slot"')
         returnToPyCharm()
     if autoBuyIndex == 2:
         #os.system('say "Purchasing item in third slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.1).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
         pyautogui.moveTo(770, 760, 0.2)
-        time.sleep(0.1)
+        time.sleep(0.5)
         pyautogui.click(button='left')
         time.sleep(0.1)
         pyautogui.moveTo(750, 760, 0.2)
         pyautogui.click(button='left')
-        time.sleep(3)
+        time.sleep(5)
         returnToPyCharm()
     if autoBuyIndex == 3:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.1).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
         pyautogui.moveTo(940, 760, 0.2)
-        time.sleep(0.1)
+        time.sleep(0.5)
         pyautogui.click(button='left')
         time.sleep(0.1)
         pyautogui.moveTo(920, 760, 0.2)
         pyautogui.click(button='left')
         if audio == True:
             os.system('say "Purchasing item in Fourth slot"')
-        time.sleep(3)
+        time.sleep(5)
         returnToPyCharm()
     if autoBuyIndex == 4:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.1).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
         pyautogui.moveTo(1100, 760, 0.2)
-        time.sleep(0.1)
+        time.sleep(0.5)
         pyautogui.click(button='left')
         time.sleep(0.1)
         pyautogui.moveTo(1080, 760, 0.2)
         pyautogui.click(button='left')
         if audio == True:
             os.system('say "Purchasing item in Fifth slot"')
-        time.sleep(3)
+        time.sleep(5)
         returnToPyCharm()
     if autoBuyIndex == 5:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.1).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
         pyautogui.moveTo(1270, 760, 0.2)
-        time.sleep(0.1)
+        time.sleep(0.5)
         pyautogui.click(button='left')
         time.sleep(0.1)
         pyautogui.moveTo(1250, 760, 0.2)
         pyautogui.click(button='left')
         if audio == True:
             os.system('say "Purchasing item in sixth slot"')
-        time.sleep(3)
+        time.sleep(5)
         returnToPyCharm()
 
 def filterList(numbers, names):
