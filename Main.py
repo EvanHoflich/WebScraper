@@ -26,15 +26,17 @@ from selenium.webdriver.support import expected_conditions as EC
 
 #------------------------Settings to change-----------------------
 goodMultiplier = 2.6
-balance = 6.62   #Maxmimum item price the auto buyer will purchase
+balance = 32.1   #Maxmimum item price the auto buyer will purchase
 exchangeRate = 1.6997828
 summaryFrequency = 5  #Once every 5 refreshes
 autoBuyBool = True  #Turn this setting on so the bot will automatically purchase good deals
 autoDepositBool = False  #Turn on if you want system to auto deposit item - this takes control of mouse
-findLinkBool = False  #Turn on if finding link is having issues
-myItem = ['Glock-18 | Wraiths (Factory New)']
-slot = 1
-audio = False
+findLinkBool = False
+#Turn on if finding link is having issues
+myItem = ['AWP | Chromatic Aberration (Minimal Wear)']
+slot = 3
+audio = True
+audio2 = True
 waitTime = 2
 #-----------------------------------------------------------------
 
@@ -121,6 +123,7 @@ goneCount = 0
 trackingCount = 0
 notInStoreCount = 0
 goodDealIndex = 0
+goodDealCount = 0
 #--------------------------
 
 def loggedData():
@@ -191,10 +194,11 @@ def reset():
 
 def autoDeposit(depositItem):
     if audio == True:
-        os.system(f'say "Depositing {depositItem}"')
+        # os.system(f'say "Depositing {depositItem}"')
+        os.system('say "Depositing"')
     webbrowser.open_new('https://www.wtfskins.com/deposit/steam/p2p')
     time.sleep(5.5)  #Wait for browser to load
-    pyautogui.click(x=position, y=630, clicks=1, button='left')  # Click on skin
+    pyautogui.click(x=position, y=530, clicks=1, button='left')  # Click on skin
     time.sleep(0.2)
     pyautogui.click(x=1300, y=350, clicks=1, button='left')  # Click on discount box
     time.sleep(1)
@@ -216,13 +220,6 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
     smallest_names_log, smallest_numbers_log = zip(*smallest_4_data_log)
     largest_names_log, largest_numbers_log = zip(*largest_4_data_log)
 
-    checkListData.append(len(smallest_names_log))
-    if len(checkListData) > 2:
-        checkListData.pop(0)
-
-    if checkListData[0] != checkListData[1] and checkListData[0] != 0:
-        print(Fore.GREEN + '                                                                   Added', num2words(checkListData[1]-checkListData[0]), 'new item(s) to data.txt!')
-
     # print('Smallest names: ', smallest_names_log)
     # print('Smallest Numbers: ', smallest_numbers_log)
 
@@ -233,6 +230,13 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
             unique_data[name] = price
     unique_names_log = list(unique_data.keys())
     unique_numbers_log = list(unique_data.values())
+
+    checkListData.append(len(unique_names_log))
+    if len(checkListData) > 2:
+        checkListData.pop(0)
+    if checkListData[0] != checkListData[1] and checkListData[0] != 0:
+        print(Fore.GREEN + '                                                       NEW ITEM!   Added',
+              num2words(checkListData[1] - checkListData[0]), 'new item(s) to data.txt!')
 
     # print('Unique Names: ', unique_names_log)
     # print('Unique Numbers: ', unique_numbers_log)
@@ -246,12 +250,15 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
 def autoBuy(autoBuyIndex):
     if autoBuyIndex == 0:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))  #Wait for the page to load
-        pyautogui.moveTo(430, 760, 0.2)
-        time.sleep(0.1)
+        html_element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, "html")))  #Wait for the page to load
+        pyautogui.moveTo(430, 760, 0.1)
+        time.sleep(0.05)
         pyautogui.click(button='left')
-        time.sleep(0.1)
-        pyautogui.moveTo(410,760, 0.2)
+        time.sleep(0.05)
+        pyautogui.moveTo(410,760, 0.1)
+        time.sleep(0.05)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
         pyautogui.click(button='left')
         time.sleep(5)
         if audio == True:
@@ -259,13 +266,16 @@ def autoBuy(autoBuyIndex):
         returnToPyCharm()
     if autoBuyIndex == 1:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
-        pyautogui.moveTo(600, 760, 0.2)  #Move to buy button
-        time.sleep(0.5)
+        html_element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        pyautogui.moveTo(600, 760, 0.1)  #Move to buy button
+        time.sleep(0.05)
         pyautogui.click(button='left')   #Click Buy button
-        time.sleep(0.1)
-        pyautogui.moveTo(580, 760, 0.2)  #Move to confirm button
+        time.sleep(0.05)
+        pyautogui.moveTo(580, 760, 0.1)  #Move to confirm button
+        time.sleep(0.05)
         pyautogui.click(button='left')   #Click confirm button
+        time.sleep(0.8)
+        pyautogui.click(button='left')
         time.sleep(5)
         if audio == True:
             os.system('say "Purchasing item in second slot"')
@@ -273,23 +283,29 @@ def autoBuy(autoBuyIndex):
     if autoBuyIndex == 2:
         #os.system('say "Purchasing item in third slot"')
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
-        pyautogui.moveTo(770, 760, 0.2)
-        time.sleep(0.5)
+        html_element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        pyautogui.moveTo(770, 760, 0.1)
+        time.sleep(0.05)
         pyautogui.click(button='left')
-        time.sleep(0.1)
-        pyautogui.moveTo(750, 760, 0.2)
+        time.sleep(0.05)
+        pyautogui.moveTo(750, 760, 0.1)
+        time.sleep(0.05)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
         pyautogui.click(button='left')
         time.sleep(5)
         returnToPyCharm()
     if autoBuyIndex == 3:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
-        pyautogui.moveTo(940, 760, 0.2)
-        time.sleep(0.5)
+        html_element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        pyautogui.moveTo(940, 760, 0.1)
+        time.sleep(0.05)
         pyautogui.click(button='left')
-        time.sleep(0.1)
-        pyautogui.moveTo(920, 760, 0.2)
+        time.sleep(0.05)
+        pyautogui.moveTo(920, 760, 0.1)
+        time.sleep(0.05)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
         pyautogui.click(button='left')
         if audio == True:
             os.system('say "Purchasing item in Fourth slot"')
@@ -297,12 +313,15 @@ def autoBuy(autoBuyIndex):
         returnToPyCharm()
     if autoBuyIndex == 4:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
-        pyautogui.moveTo(1100, 760, 0.2)
-        time.sleep(0.5)
+        html_element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        pyautogui.moveTo(1100, 760, 0.1)
+        time.sleep(0.05)
         pyautogui.click(button='left')
-        time.sleep(0.1)
-        pyautogui.moveTo(1080, 760, 0.2)
+        time.sleep(0.05)
+        pyautogui.moveTo(1080, 760, 0.1)
+        time.sleep(0.05)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
         pyautogui.click(button='left')
         if audio == True:
             os.system('say "Purchasing item in Fifth slot"')
@@ -310,12 +329,15 @@ def autoBuy(autoBuyIndex):
         returnToPyCharm()
     if autoBuyIndex == 5:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
-        html_element = WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
-        pyautogui.moveTo(1270, 760, 0.2)
-        time.sleep(0.5)
+        html_element = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.TAG_NAME, "html")))
+        pyautogui.moveTo(1270, 760, 0.1)
+        time.sleep(0.05)
         pyautogui.click(button='left')
-        time.sleep(0.1)
-        pyautogui.moveTo(1250, 760, 0.2)
+        time.sleep(0.05)
+        pyautogui.moveTo(1250, 760, 0.1)
+        time.sleep(0.05)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
         pyautogui.click(button='left')
         if audio == True:
             os.system('say "Purchasing item in sixth slot"')
@@ -368,7 +390,10 @@ def autoDataLog(numbers, names):
 
 
 def steamMarketWorking():
-    item = sm.get_csgo_item('AK-47 | Frontside Misty (Field-Tested)', currency='USD')
+    try:
+        item = sm.get_csgo_item('AK-47 | Frontside Misty (Field-Tested)', currency='USD')
+    except requests.exceptions.ConnectionError:
+        print("Connection error occurred.")
     if item is None:
         print(Fore.RED + "                                                             -----Steam Market Library Currently Down-----" + Style.RESET_ALL)
         main()
@@ -567,9 +592,13 @@ def printsStatement():
         else:
             statement.append(Fore.GREEN +'GOOD DEAL - ' + multiplier + 'x')
             global goodDeal
+            global goodDealCount
             if mac == 1 and goodDeal == False and float(priceList[e]) < float(balance):
-                if audio == True:
+                if audio == True and checkMultiplier < 4:
                     os.system('say "Good Deal Spotted"')
+                    goodDealCount = goodDealCount + 1
+                if audio == True and checkMultiplier >=4:
+                    os.system('say "Deal spotted with high multiplier"')
                 goodDeal = True
                 if autoBuyBool == True and checkMultiplier < 4:
                     autoBuy(e)
@@ -608,22 +637,22 @@ def printsStatement():
         for y in range(len(myItem)):
             if myItem[y] not in skinList and autoDepositBool == True:   #Deposit Skin After 2 Refreshes of not being there
                 notInStoreCount = notInStoreCount + 1
-                if notInStoreCount <= 2:
-                    print('                                                                    depositing item in', 2-notInStoreCount, 'refresh(s)')
-                if notInStoreCount == 2 and myItemBool == False:
+                if notInStoreCount <= 5:
+                    print('                                                                    depositing item in', 5-notInStoreCount, 'refresh(s)')
+                if notInStoreCount == 5 and myItemBool == False:
                     autoDeposit(myItem[y])
-            print(myItem[y] not in skinList)
-            print(myItemBool)
-            print(count)
-            print(itemHasBeenInStore)
             if myItem[y] not in skinList and myItemBool == False and count != 0 and itemHasBeenInStore == True:
-                print(goneCount)
                 goneCount = goneCount + 1
                 trackingCount = 0
                 itemInStore = False
-                # if goneCount == 5 and itemInStore == False:  #Give four extra refresh to account for incorrect reading
-                #     os.system('say "Hooray, item sold!')
-                #     myItemBool = True
+                if goneCount == 10 and itemInStore == False:  #Give four extra refresh to account for incorrect reading
+                    print("                                                                                     ")
+                    print(Fore.GREEN + "                                                     WE SOLD THAT ITEM LETS GOOOOOOOOOOOOOOOOO!")
+                    print("                                                     OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+                    print("                                                     OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" + Style.RESET_ALL)
+                    if audio2 == True:
+                        os.system('say "Hooray, Item Sold!"')
+                    myItemBool = True
             if myItem[y] in skinList:
                 itemHasBeenInStore = True
                 myItemBool = False
@@ -669,10 +698,14 @@ def main():
     for g in range(len(priceList)):
         size_list.append(priceList[g])
 
+    if goodDealCount == 0:
+        placeholder = '                 No good deals yet :(' + '                     '
+    if goodDealCount > 0:
+        placeholder = '             {:.2f}mins/multiplier'.format((time.time() - start) / 60 / goodDealCount) + Fore.GREEN + '(' + str(goodDealCount) +')' + Style.RESET_ALL + '                         '
+
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
-    print('|               Time Elapsed: ',round(time.time() - start, 2) ,'s / ' ,round((time.time() - start)/60, 2), 'min               |   Refreshing, Refresh #', count,
-          '     |   Items in store =', len(size_list), '                                           |')
+    print('|               Time Elapsed: ',round(time.time() - start, 2) ,'s / ' ,round((time.time() - start)/60, 2), 'min                 |    Refreshing, Refresh #', count, '      |     ', placeholder, '|')
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
     if count % 100 == 0 and count != 0:  # Every 100 check to ensure steam market is working
