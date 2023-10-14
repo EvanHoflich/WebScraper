@@ -16,6 +16,7 @@ import pyautogui
 from prettytable import PrettyTable
 import re
 from num2words import num2words
+import platform
 import shutil
 import numpy as np
 badDealTable = PrettyTable()
@@ -42,11 +43,11 @@ audio = True
 audio2 = False
 waitTime = 2
 returnToWhere = 'pycharm'
-mac = 0             #What operating system I am using
 cheapBundleAmount = 100
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
+mac = 1 if platform.system() == 'Darwin' else 0  #Automatically check if using a mac or windows
 Sum = 0
 store_not_empty = 0
 empty = True
@@ -952,6 +953,11 @@ def main():
         return empty
 
 print('                                              ******************* Starting...... - Code By Evan Holfich *******************')
+if mac == 1:
+    macStatement = 'OSX'
+else:
+    macStatement = 'Windows'
+print(Fore.YELLOW + '                                                                          Code Running on', macStatement)
 start = time.time()
 steamMarketWorking()
 loggedData()
