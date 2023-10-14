@@ -40,7 +40,6 @@ myItem = ['AWP | Chromatic Aberration (Minimal Wear)']
 itemsIDontWant = ['MP9 | Goo (Field-Tested)', 'M4A1-S | Flashback (Field-Tested)']
 slot = 3
 audio = True
-audio2 = False
 waitTime = 2
 returnToWhere = 'pycharm'
 cheapBundleAmount = 100
@@ -838,7 +837,7 @@ def printsStatement():
                     print(Fore.GREEN + "                                                     WE SOLD THAT ITEM LETS GOOOOOOOOOOOOOOOOO!")
                     print("                                                     OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
                     print("                                                     OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" + Style.RESET_ALL)
-                    if audio2 == True:
+                    if audio == True:
                         os.system('say "Hooray, Item Sold!"')
                     myItemBool = True
             if myItem[y] in skinList:
