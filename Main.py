@@ -13,6 +13,8 @@ import pyshorteners
 from selenium.common.exceptions import NoSuchElementException
 import webbrowser
 import pyautogui
+import datetime
+import pytz
 from prettytable import PrettyTable
 import re
 from num2words import num2words
@@ -884,7 +886,8 @@ def main():
         priceList.append(newResult.replace(",", ""))
     for g in range(len(priceList)):
         size_list.append(priceList[g])
-
+    new_zealand_tz = pytz.timezone('Pacific/Auckland')
+    current_time = datetime.datetime.now(new_zealand_tz)
     if goodDealCount == 0:
         placeholder = '                 No good deals yet :(' + '                     '
     if goodDealCount > 0:
@@ -892,7 +895,7 @@ def main():
 
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
-    print('|               Time Elapsed: ',round(time.time() - start, 2) ,'s / ' ,round((time.time() - start)/60, 2), 'min                 |    Refreshing, Refresh #', count, '      |     ', placeholder, '|')
+    print('|           Time Elapsed: ',round((time.time() - start)/60, 2), 'min /',current_time.strftime('%I:%M:%S %p'),'               |    Refreshing, Refresh #', count, '      |     ', placeholder, '|')
     print(
         '+-----------------------------------------------------------------+----------------------------------+-----------------------------------------------------------------+')
     if count % 1000 == 0 and count != 0:  # Every 100 check to ensure steam market is working
