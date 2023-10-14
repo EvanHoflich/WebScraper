@@ -23,11 +23,13 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import pyttsx3
+engine = pyttsx3.init()
 
 #------------------------Settings to change-----------------------
-goodMultiplier = 3
+goodMultiplier = 2.6
 balance = 103.57   #Maxmimum item price the auto buyer will purchase
-exchangeRate = 1.654688
+exchangeRate = 1.6986729
 summaryFrequency = 5  #Once every 5 refreshes
 autoBuyBool = True  #Turn this setting on so the bot will automatically purchase good deals
 autoDepositBool = False  #Turn on if you want sy
@@ -35,7 +37,7 @@ autoDepositBool = False  #Turn on if you want sy
 findLinkBool = True
 #Turn on if finding link is having issues
 myItem = ['AWP | Chromatic Aberration (Minimal Wear)']
-itemsIDontWant = ['MP9 | Goo (Field-Tested)']
+itemsIDontWant = ['MP9 | Goo (Field-Tested)', 'M4A1-S | Flashback (Field-Tested)']
 slot = 3
 audio = True
 audio2 = False
@@ -46,7 +48,7 @@ returnToWhere = 'pycharm'
 #-----------Variables-----------
 Sum = 0
 store_not_empty = 0
-mac = 1             #What operating system I am using
+mac = 0             #What operating system I am using
 empty = True
 bundles = False
 bundleMismatch = False
@@ -246,6 +248,149 @@ def saveData(DealTableSkinLogD, DealTablePriceLogD):
     with open("data.txt", "w") as file:
         file.write('                 -----Descending Order For Skin Values-----\n')
         file.write('\n'.join(combined_data))
+
+def autoBuyWindows(autoBuyIndexW):
+    if autoBuyIndexW == 0:
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        html_element = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
+        time.sleep(1)
+        pyautogui.moveTo(-1498, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.25)
+        pyautogui.moveTo(-1505, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
+        pyautogui.click(button='left')
+        time.sleep(0.4)
+        pyautogui.click(button='left')
+        time.sleep(5)
+        if audio == True:
+            engine.say("Purchasing item in first slot")
+            engine.runAndWait()
+    if autoBuyIndexW == 1:
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        html_element = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
+        time.sleep(1)
+        pyautogui.moveTo(-1328, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.25)
+        pyautogui.moveTo(-1335, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
+        pyautogui.click(button='left')
+        time.sleep(0.4)
+        pyautogui.click(button='left')
+        time.sleep(5)
+        if audio == True:
+            engine.say("Purchasing item in second slot")
+            engine.runAndWait()
+    if autoBuyIndexW == 1:
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        html_element = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
+        time.sleep(1)
+        pyautogui.moveTo(-1158, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.25)
+        pyautogui.moveTo(-1165, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
+        pyautogui.click(button='left')
+        time.sleep(0.4)
+        pyautogui.click(button='left')
+        time.sleep(5)
+        if audio == True:
+            engine.say("Purchasing item in third slot")
+            engine.runAndWait()
+    if autoBuyIndexW == 1:
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        html_element = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
+        time.sleep(1)
+        pyautogui.moveTo(-988, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.25)
+        pyautogui.moveTo(-995, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
+        pyautogui.click(button='left')
+        time.sleep(0.4)
+        pyautogui.click(button='left')
+        time.sleep(5)
+        if audio == True:
+            engine.say("Purchasing item in fourth slot")
+            engine.runAndWait()
+    if autoBuyIndexW == 1:
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        html_element = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
+        time.sleep(1)
+        pyautogui.moveTo(-818, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.25)
+        pyautogui.moveTo(-825, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
+        pyautogui.click(button='left')
+        time.sleep(0.4)
+        pyautogui.click(button='left')
+        time.sleep(5)
+        if audio == True:
+            engine.say("Purchasing item in fifth slot")
+            engine.runAndWait()
+    if autoBuyIndexW == 1:
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        html_element = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
+        time.sleep(1)
+        pyautogui.moveTo(-648, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.25)
+        pyautogui.moveTo(-655, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
+        pyautogui.click(button='left')
+        time.sleep(0.4)
+        pyautogui.click(button='left')
+        time.sleep(5)
+        if audio == True:
+            engine.say("Purchasing item in fifth slot")
+            engine.runAndWait()
+    if autoBuyIndexW == 1:
+        webbrowser.open_new('https://www.wtfskins.com/withdraw')
+        html_element = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
+        time.sleep(1)
+        pyautogui.moveTo(-478, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.25)
+        pyautogui.moveTo(-485, 715, 0.1)
+        time.sleep(0.25)
+        pyautogui.click(button='left')
+        time.sleep(0.8)
+        pyautogui.click(button='left')
+        time.sleep(0.4)
+        pyautogui.click(button='left')
+        time.sleep(5)
+        if audio == True:
+            engine.say("Purchasing item in sixth slot")
+            engine.runAndWait()
+
 
 def autoBuy(autoBuyIndex):
     if autoBuyIndex == 0:
@@ -617,6 +762,19 @@ def printsStatement():
                 goodDeal = True
                 if autoBuyBool == True and checkMultiplier < 4.3 and e not in itemsIDontWant:
                     autoBuy(e)
+            #BUYING WITH WINDOWS COMPUTER
+            if mac == 0 and goodDeal == False and float(priceList[e]) < float(balance):
+                if checkMultiplier < 4:
+                    goodDealCount = goodDealCount + 1
+                    if audio == True:
+                        engine.say("Good Deal Spotted")
+                        engine.runAndWait()
+                if audio == True and checkMultiplier >= 4.3:
+                    engine.say("Deal spotted with high multiplier")
+                    engine.runAndWait()
+                goodDeal = True
+                if autoBuyBool == True and checkMultiplier < 4.3 and e not in itemsIDontWant:
+                    autoBuyWindows(e)
         print(Style.RESET_ALL)
         if prices[e] == 0.0000 or prices[e] == '      No Suggested Price                ':
             prices[e] = '      No Suggested Price                '
