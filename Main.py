@@ -24,10 +24,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pyttsx3
-engine = pyttsx3.init()
 
 #------------------------Settings to change-----------------------
-goodMultiplier = 2.6
+goodMultiplier = 3
 balance = 103.57   #Maxmimum item price the auto buyer will purchase
 exchangeRate = 1.6986729
 summaryFrequency = 5  #Once every 5 refreshes
@@ -43,12 +42,13 @@ audio = True
 audio2 = False
 waitTime = 2
 returnToWhere = 'pycharm'
+mac = 0             #What operating system I am using
+cheapBundleAmount = 100
 #-----------------------------------------------------------------
 
 #-----------Variables-----------
 Sum = 0
 store_not_empty = 0
-mac = 0             #What operating system I am using
 empty = True
 bundles = False
 bundleMismatch = False
@@ -63,6 +63,9 @@ if autoDepositBool == True:
 else:
     trackItem = False  # Turn on if I want to track item
 position = 320 + (140*slot)
+
+if mac == 0:
+    engine = pyttsx3.init()
 #--------------------------------
 
 ua = UserAgent()
@@ -129,6 +132,7 @@ trackingCount = 0
 notInStoreCount = 0
 goodDealIndex = 0
 goodDealCount = 0
+bundleSpot = 0
 #--------------------------
 
 def loggedData():
@@ -290,7 +294,7 @@ def autoBuyWindows(autoBuyIndexW):
         if audio == True:
             engine.say("Purchasing item in second slot")
             engine.runAndWait()
-    if autoBuyIndexW == 1:
+    if autoBuyIndexW == 2:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         html_element = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
@@ -310,7 +314,7 @@ def autoBuyWindows(autoBuyIndexW):
         if audio == True:
             engine.say("Purchasing item in third slot")
             engine.runAndWait()
-    if autoBuyIndexW == 1:
+    if autoBuyIndexW == 3:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         html_element = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
@@ -330,7 +334,7 @@ def autoBuyWindows(autoBuyIndexW):
         if audio == True:
             engine.say("Purchasing item in fourth slot")
             engine.runAndWait()
-    if autoBuyIndexW == 1:
+    if autoBuyIndexW == 4:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         html_element = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
@@ -350,7 +354,7 @@ def autoBuyWindows(autoBuyIndexW):
         if audio == True:
             engine.say("Purchasing item in fifth slot")
             engine.runAndWait()
-    if autoBuyIndexW == 1:
+    if autoBuyIndexW == 5:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         html_element = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
@@ -370,7 +374,7 @@ def autoBuyWindows(autoBuyIndexW):
         if audio == True:
             engine.say("Purchasing item in fifth slot")
             engine.runAndWait()
-    if autoBuyIndexW == 1:
+    if autoBuyIndexW == 6:
         webbrowser.open_new('https://www.wtfskins.com/withdraw')
         html_element = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.TAG_NAME, "html")))  # Wait for the page to load
@@ -738,8 +742,18 @@ def skinCheck(name):
     myList.clear()
 
 def printsStatement():
+    global bundleSpot
+    if 'Bundle                              ' not in skinList:  # Reseting bunlespot so it doesn't go on forever
+        bundleSpot = 0
     for e in range(len(skinList)):
         findLink(skinList[e])
+        if skinList[e] == 'Bundle                              ' and float(priceList[e]) < cheapBundleAmount and bundleSpot == 0:
+            if mac == 1:
+                os.system('say "Bundle Spotted"')
+            if mac == 0:
+                engine.say("Bundle Spotted")
+                engine.runAndWait()
+            bundleSpot = 1
         if skinList[e] != 'Bundle                              ':  #Calculating how good a deal this is (multiplier)
             multiplier = float(prices[e])/float(priceList[e])
             checkMultiplier = multiplier
