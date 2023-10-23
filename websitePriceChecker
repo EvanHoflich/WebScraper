@@ -9798,7 +9798,7 @@ for x in range(len(item_names)//iterateNumber):
     for num1, num2 in zip(storeBuyPrice, storePriceList):
             percent = (num2 / num1)  # Calculate the percentage
             percentList.append(percent)
-            if percent > 3.2:
+            if percent > 3:
                 statementList.append(Fore.GREEN + 'High Multiplier'+ Style.RESET_ALL)
             elif percent < 2 and percent > 1:
                 statementList.append(Fore.RED + 'Low Multiplier'+ Style.RESET_ALL)
@@ -9810,7 +9810,7 @@ for x in range(len(item_names)//iterateNumber):
     storePriceList = [round(price, 2) for price in storePriceList]
     percentList = [round(percent, 2) for percent in percentList]
     for i in range(len(item_names)):
-        print(f"Name: {item_names[i]:<55} | WtfSkinsStore {storeBuyPrice[i]:<8} | Steam Price Price: {storePriceList[i]:<8} | Multiplier: {percentList[i+startIterate]:<8}: {statementList[i+startIterate]}")
+        print(f"Name: {item_names[i]:<60} | WtfSkinsStore {storeBuyPrice[i]:<8} | Steam Price Price: {storePriceList[i]:<8} | Multiplier{percentList[i+startIterate]:<8}: {statementList[i+startIterate]}")
     fullNameList.extend(item_names)
     fullPriceList.extend(storePriceList)
     multiplierList.extend(percentList)
@@ -9821,15 +9821,16 @@ for x in range(len(item_names)//iterateNumber):
         filtered_item_names = []
         filtered_percentList = []
 
-        for i in range(len(percentList)):
-            if percentList[i] > 0.01:
-                filtered_item_names.append(item_names[i])
-                filtered_percentList.append(percentList[i])
+        for i in range(len(fullNameList)):
+            if multiplierList[i] > 0.01:
+                filtered_item_names.append(fullNameList[i])
+                filtered_percentList.append(multiplierList[i])
 
-        # Now, filtered_item_names and filtered_percentList contain the filtered data
-        print(filtered_item_names)
-        print(filtered_percentList)
-        filtered_item_names.clear()
-        filtered_percentList.clear()
-    print('                        -------------------------------------------------------------------------------------------------------------------')
-    time.sleep(20)
+        combined_list = list(zip(filtered_item_names, filtered_percentList))
+        combined_list.sort(key=lambda x: x[1])
+        filtered_item_names, filtered_percentList = zip(*combined_list)
+
+        for i in range(1, 6):
+            print(f"                                  \033[91m{i}: {filtered_item_names[i]:<62}  | Multiplier: {filtered_percentList[i]:<8}\033[0m")
+
+    time.sleep(15)
