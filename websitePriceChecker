@@ -9800,28 +9800,33 @@ for x in range(len(item_names)//iterateNumber):
             percentList.append(percent)
             if percent > 3.2:
                 statementList.append(Fore.GREEN + 'High Multiplier'+ Style.RESET_ALL)
-            if percent < 2 and percent > 1:
+            elif percent < 2 and percent > 1:
                 statementList.append(Fore.RED + 'Low Multiplier'+ Style.RESET_ALL)
-            if percent < 0.1:
+            elif percent < 0.1:
                 statementList.append('Cannot Be found :(')
             else:
                 statementList.append(Fore.YELLOW + 'Normal Multiplier'+ Style.RESET_ALL)
     for i in range(len(item_names)):
-        print(f"Name: {item_names[i]} | WtfSkinsStore {storeBuyPrice[i]} | Steam Price Price: {storePriceList[i]}   |   Multiplier: {percentList[i+startIterate]}: {statementList[i+startIterate]}")
+        print(f"Name: {item_names[i]:<42} | WtfSkinsStore {storeBuyPrice[i]:<8} | Steam Price Price: {storePriceList[i]:<20} | Multiplier: {percentList[i+startIterate]:<10}: {statementList[i+startIterate]}")
     fullNameList.extend(item_names)
     fullPriceList.extend(storePriceList)
     multiplierList.extend(percentList)
 
-    sorted_indices = np.argsort(fullPriceList)[::-1]
-    fullPriceList = [fullPriceList[i] for i in sorted_indices]
-    fullNameList = [fullNameList[i] for i in sorted_indices]
-    multiplierList = [multiplierList[i] for i in sorted_indices]
-
-
     iterate = iterate + iterateNumber
     startIterate = startIterate + iterateNumber
     if startIterate % 100 == 0:
-        print('Mutlipler List:', multiplierList)
-        print(fullNameList)
+        filtered_item_names = []
+        filtered_percentList = []
+
+        for i in range(len(percentList)):
+            if percentList[i] > 0.01:
+                filtered_item_names.append(item_names[i])
+                filtered_percentList.append(percentList[i])
+
+        # Now, filtered_item_names and filtered_percentList contain the filtered data
+        print(filtered_item_names)
+        print(filtered_percentList)
+        filtered_item_names.clear()
+        filtered_percentList.clear()
     print('-------------------------------------------------------------------------------------------------------------------')
     time.sleep(20)
