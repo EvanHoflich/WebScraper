@@ -9780,7 +9780,7 @@ storePriceListOld = [val for i, val in enumerate(storePriceList) if i not in ind
 
 
 for x in range(len(item_names)//iterateNumber):
-    print('*************************** Index', startIterate, '-', iterate, '******************************')
+    print('                                            *************************** Index', startIterate, '-', iterate, '******************************')
     item_names = item_namesOld[startIterate:iterate]
     storeBuyPrice = storeBuyPriceOld[startIterate:iterate]
     storePriceList = storePriceListOld[startIterate:iterate]
@@ -9806,8 +9806,11 @@ for x in range(len(item_names)//iterateNumber):
                 statementList.append('Cannot Be found :(')
             else:
                 statementList.append(Fore.YELLOW + 'Normal Multiplier'+ Style.RESET_ALL)
+    storeBuyPrice = [round(price, 2) for price in storeBuyPrice]
+    storePriceList = [round(price, 2) for price in storePriceList]
+    percentList = [round(percent, 2) for percent in percentList]
     for i in range(len(item_names)):
-        print(f"Name: {item_names[i]:<42} | WtfSkinsStore {storeBuyPrice[i]:<8} | Steam Price Price: {storePriceList[i]:<20} | Multiplier: {percentList[i+startIterate]:<10}: {statementList[i+startIterate]}")
+        print(f"Name: {item_names[i]:<55} | WtfSkinsStore {storeBuyPrice[i]:<8} | Steam Price Price: {storePriceList[i]:<8} | Multiplier: {percentList[i+startIterate]:<8}: {statementList[i+startIterate]}")
     fullNameList.extend(item_names)
     fullPriceList.extend(storePriceList)
     multiplierList.extend(percentList)
@@ -9828,5 +9831,5 @@ for x in range(len(item_names)//iterateNumber):
         print(filtered_percentList)
         filtered_item_names.clear()
         filtered_percentList.clear()
-    print('-------------------------------------------------------------------------------------------------------------------')
+    print('                        -------------------------------------------------------------------------------------------------------------------')
     time.sleep(20)
